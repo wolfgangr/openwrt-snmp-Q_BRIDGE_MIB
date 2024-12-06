@@ -178,6 +178,9 @@ sub load_data {
   debug(3, "perform initial load_data() ... \n");
   load_uci_net();
   load_proc_vlan();
+  load_proc_dev();
+  # load_proc_arp();
+
   debug(4, "... completed initial load_data() \n");
 }
 
@@ -191,7 +194,7 @@ sub check_data {
 sub load_uci_net {
   debug(5, "     ... loading load_uci_net() ... \n");
   my @uci_raw = split "\n" , `$uci_show_net`;
-  die "executeing $uci_show_net delivered empty result\n" unless scalar @uci_raw;
+  die "executing $uci_show_net delivered empty result\n" unless scalar @uci_raw;
 
   my $cb; # keep track of current blocks over multiple lines
   for my $line (@uci_raw) {
@@ -245,7 +248,7 @@ sub load_uci_net {
 # %proc_vlan_data;
 sub load_proc_vlan {
   
-  debug(0, "     ... ### TBD load_proc_vlan() { ... \n");
+  debug(5, "     ... loading proc/net/vlan ... \n");
   my $vlan_dir = "$proc_dir/vlan";
   my $vlan_conf = "$vlan_dir/config";
   my @vlans_raw = split "\n" , `cat $vlan_conf`;
@@ -261,7 +264,7 @@ sub load_proc_vlan {
 
   %proc_vlan_data = (); # start afresh
 
-  debug(5, "parsing \@vlans_raw with $#vlans_raw data rows\n");
+  debug(6, "parsing \@vlans_raw with $#vlans_raw data rows\n");
   for my $line (@vlans_raw) {
     # print $line;
     my ($vl_name, $vl_id, $vl_iface) = split /\s*\|\s+/, $line; 
@@ -312,13 +315,40 @@ sub load_proc_vlan {
 
 # @proc_dev_data;       /proc/net/dev
 sub load_proc_dev {
-  debug(0, "     ... ### TBD load_proc_dev() { ... \n");
+  debug(5, "     ... loading /proc/net/dev ... \n");
   my $dev_dir = "$proc_dir/dev";
   my @devs_raw = split "\n" , `cat $dev_dir`;
   die " empty $dev_dir\n" unless scalar @devs_raw;
 
-  print '\@proc_dev_data: ', Dumper( \@proc_arp_data);
-  die "====== bleeding dev edge ==========~~~~~~~~~~~~~~~~~----------------";
+  # my $h1 = shift @devs_raw;
+  my ($if1, $rxl, $txl)       = split /\s*\|\s*/, (shift @devs_raw);
+  my ($if2, $rxtags, $txtags) = split /\s*\|\s*/, (shift @devs_raw);
+  my @rxtaglist = split /\s+/, $rxtags;
+  my @txtaglist = split /\s+/, $txtags;
+
+  print Dumper(\@rxtaglist, \@txtaglist);
+
+  for my $ln (@devs_raw) {
+    print "$ln\n";
+    my @cells = split /\s+/, $ln;
+    print ((join '|', @cells) . "\n");
+
+    (shift @cells) =~ /^(\S+)\:$/ ;
+    my $dev_row = { Interface => $1, RX => {}, TX => {} };
+    push @proc_dev_data, $dev_row;
+
+    for my $rxt (@rxtaglist) {
+      $dev_row->{RX}->{$rxt} = shift @cells;
+    }
+
+    for my $txt (@txtaglist) {
+      $dev_row->{TX}->{$txt} = shift @cells;
+    }
+    # push @proc_dev_data, $dev_row;
+  }
+
+  # print '\@proc_dev_data: ', Dumper( \@proc_dev_data);
+  # die "====== bleeding dev edge ==========~~~~~~~~~~~~~~~~~----------------";
 
 }
 # @proc_arp_data;       /proc/net/arp 
