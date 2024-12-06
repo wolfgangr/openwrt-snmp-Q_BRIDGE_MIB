@@ -238,11 +238,6 @@ sub load_uci_net {
     print ((join ' | ', @chunks) . " = >$val<\n");
     die "case not implemented";
   }
-
-
-  # ========~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~------------------
-  # print  '\%uci_net_data: ', Dumper( \%uci_net_data);
-  # die " ===== bleeding edge ========~~~~~~~~~~~~~~~~------------------";
 }
 
 # %proc_vlan_data;
@@ -266,9 +261,7 @@ sub load_proc_vlan {
 
   debug(6, "parsing \@vlans_raw with $#vlans_raw data rows\n");
   for my $line (@vlans_raw) {
-    # print $line;
     my ($vl_name, $vl_id, $vl_iface) = split /\s*\|\s+/, $line; 
-    # print join(':', ($vl_name, $vl_id, $vl_iface) ); 
     $proc_vlan_data{$vl_id} = { ID => $vl_id, 
         name => $vl_name, port => $vl_iface };
   }
@@ -299,17 +292,8 @@ sub load_proc_vlan {
       } elsif ( $nl =~ /^\s*(\S.*\S)\:\s+(\S.*\S)\s*$/ ) {
         $datasub->{$1} = $2;
       }
-
     }
-
-    # print "next line of remaining $#vld_raw lines:\n" . (shift @vld_raw) . "\n"; 
-    # last ;
-
   }
-
-  # cat /proc/net/dev
-  # print '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
-  # die "====== bleeding edge ==========~~~~~~~~~~~~~~~~~----------------";
 }
 
 
@@ -344,36 +328,28 @@ sub load_proc_dev {
     for my $txt (@txtaglist) {
       $dev_row->{TX}->{$txt} = shift @cells;
     }
-    # push @proc_dev_data, $dev_row;
   }
-
-  # print '\@proc_dev_data: ', Dumper( \@proc_dev_data);
-  # die "====== bleeding dev edge ==========~~~~~~~~~~~~~~~~~----------------";
-
 }
+
+
 # @proc_arp_data;       /proc/net/arp 
 sub load_proc_arp {
-  debug(5, "     ... ### loading /proc/net/arp ... \n");
+  debug(5, "     ... loading /proc/net/arp ... \n");
   my $arp_dir = "$proc_dir/arp";
   my @arps_raw = split "\n" , `cat $arp_dir`;
   die " empty $arp_dir\n" unless scalar @arps_raw;
 
   #my @arptags = qw(IP-address HW- type     Flags       HW address            Mask     Device);
   my @arptags =  split /\s\s+/, (shift @arps_raw);
-  # print Dumper(\@arptags);
 
   for my $ln (@arps_raw) {
-    # print "$ln\n";
     my @cells = split /\s+/, $ln;
-    # print ((join '|', @cells) . "\n");
     my $arp_row = {};
     push @proc_arp_data, $arp_row;
     for my $atg (@arptags) {
       $arp_row->{$atg} = shift @cells;
     }
   }
-  # print '\@proc_arp_data: ', Dumper( \@proc_arp_data);
-  # die "====== bleeding arp edge ==========~~~~~~~~~~~~~~~~~----------------";
 }
 
 
