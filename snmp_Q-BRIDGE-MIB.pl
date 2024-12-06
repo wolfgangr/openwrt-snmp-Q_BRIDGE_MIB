@@ -65,14 +65,41 @@ debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
 	$uci_show_net, $proc_dir, $etc_dir ));
 
 
+# my $counter = 0;
+# my $place = ".1.3.6.1.4.1.8072.2.255";
+my $mib_root = ".1.3.6.1.2.1.17.1.4.1.2";  ### BRIDGE-MIB
 
-die "DEBUG exit or error?";
+
+while (<>){
+  if (m!^PING!){
+    print "PONG\n";
+    next;
+  }
+
+  my $cmd = $_;
+  my $req = <>;
+  my $ret;
+  chomp($cmd);
+  chomp($req);
+
+  if ( $cmd eq "getnext" ) {
+  } elsif ( $cmd eq "get" ) {
+  } else {
+    debug(2, "cmd= $cmd - not recognized\n");
+    next;
+  }
+}
+
+
+
+
+die "   ===== DEBUG exit or error? ===== ";
 # =============== subs =================
 
 
 sub debug {
   my ($l, $msg) = @_;
-  print STDERR $msg if $l >= $debug;
+  print STDERR 'DEBUG: ', $msg if $l >= $debug;
 }
 
 
