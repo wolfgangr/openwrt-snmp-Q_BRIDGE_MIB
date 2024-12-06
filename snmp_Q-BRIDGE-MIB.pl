@@ -161,10 +161,35 @@ sub load_uci_net() {
   my @uci_raw = split "\n" , `$uci_show_net`;
   die "executeing $uci_show_net delivered empty result\n" unless scalar @uci_raw;
   for my $line (@uci_raw) {
-    print "$l\n";
-    my @chunks = split '.', $line;
-    die "illegal line $l in input stream\n" unless (shift @chunks eq 'network');
+    print "$line\n";
+    my ($tag, $val) = split '=', $line;
+    my @chunks = split /\./, $tag;
+    # print ((join ' | ', @chunks) . " = >$val<\n");
+    # my $c1 = shift @chunks;
+    # print Dumper(\@chunks);
+    my $c1 = $chunks[1];
+    unless ($chunks[0] eq 'network') {
+      die "illegal chunk $c1 in line $line in input stream\n" ;
+      next;
+    }
+
+    print ((join ' | ', @chunks) . " = >$val<\n");
+
+
+    if ($val eq 'device' or $val eq 'interface') {
+      $uci_net_data{$c1} = { defname => $c1, class => $val };
+      # @device[5]
+      my($class, $id) = ( $c1 =~ /^@(\w+)\[(\d+)\]$/ );
+      if ($class eq 'device') {
+        if (defined $id) {
+          $uci_net_data{$c1}->{ID} = $id;
+        } else {
+          die "case not handled";
+        }
+      }
+    }
   }
+  print  '\%uci_net_data: ', Dumper( \%uci_net_data);
   die " ===== bleeding edge ========~~~~~~~~~~~~~~~~------------------";
 }
 
