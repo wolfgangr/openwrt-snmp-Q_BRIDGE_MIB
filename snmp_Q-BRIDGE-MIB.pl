@@ -39,3 +39,41 @@
 #	not compatible to /sys layout of DuT
 #	depends on some perl cpan modules not readily available in openwrt
 
+my $debug=5; 		# debug level
+my $on_target=0;	# 0 for debian test environment, 1 for openWrt target widget
+
+unless ($on_target) {
+  use warnings;
+  use strict;
+  use Data::Dumper;   
+}
+
+# config of the real gadget data source
+my $uci_show_net = '/sbin/uci show network';
+my $proc_dir = '/proc';
+my $etc_dir  = '/etc';
+
+# pseudo data source for dev env
+unless ($on_target) {
+  my $emulation_root = '.';
+  $uci_show_net = "cat $emulation_root/uci/show/network";
+  $proc_dir = "$emulation_root/proc";
+  $etc_dir  = "$emulation_root/etc";
+}
+
+debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
+	$uci_show_net, $proc_dir, $etc_dir ));
+
+
+
+die "DEBUG exit or error?";
+# =============== subs =================
+
+
+sub debug {
+  my ($l, $msg) = @_;
+  print STDERR $msg if $l >= $debug;
+}
+
+
+
