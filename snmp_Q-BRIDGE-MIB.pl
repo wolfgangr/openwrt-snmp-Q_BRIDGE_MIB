@@ -71,14 +71,29 @@ my $mib_root = ".1.3.6.1.2.1.17.1.4.1.2";  ### BRIDGE-MIB
 
 
 while (<>){
+
+  debug(1, "# check // load data \n") ;
+
   if (m!^PING!){
     print "PONG\n";
     next;
   }
 
-  if (m!^exit!){
+
+  if (m!^exit!){   # safe to keep in production?
     print "- cancelled -\n";
     exit;
+  }
+
+  if (m!^dump!){
+    if ($on_target) {
+      debug(1, "can't 'dump' - Dumper not available at target\n") ;
+    } else {
+      debug(1, "# do the dumper thing\n") ;
+    }
+  }    
+  if (m!^print!){
+    debug(1, "# print data in tab form\n") ;
   }
 
 
