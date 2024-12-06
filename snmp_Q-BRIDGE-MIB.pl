@@ -227,6 +227,26 @@ sub load_uci_net {
 # %proc_vlan_data;
 sub load_proc_vlan {
   debug(0, "     ... ### TBD load_proc_vlan() { ... \n");
+  my $vlan_dir = "$proc_dir/vlan";
+  my $vlan_conf = "$vlan_dir/config";
+  my @vlans_raw = `cat $vlan_conf`;
+  die " empty $vlan_conf\n" unless scalar @vlans_raw;
+
+  unless ((shift @vlans_raw) =~ /VLAN\s+Dev\s+name\s+\|\s+VLAN\s+ID/ ) {
+    die "first line of $vlan_conf does not match" ;
+  }
+
+  unless ((shift @vlans_raw) ne 'Name-Type: VLAN_NAME_TYPE_RAW_PLUS_VID_NO_PAD') {
+    die "second line of $vlan_conf does not match" ;
+  }
+
+  debug(5, "parsing \@vlans_raw with $#vlans_raw data rows\n");
+  for my $line (@vlans_raw) {
+    print $line;
+
+  }
+  print '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
+  die "====== bleeding edge ==========~~~~~~~~~~~~~~~~~----------------";
 }
 
 # build mib tree
