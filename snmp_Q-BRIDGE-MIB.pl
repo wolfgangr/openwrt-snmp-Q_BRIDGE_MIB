@@ -96,15 +96,36 @@ while (<>){   # ===============  main loop =========================i=
   debug(5, sprintf "     \$time_now: %i; \$time_updated: %i; age of data: %i seconds  \n",
         $time_now,  $time_updated,  $time_now - $time_updated  );
 
+####  check get and getnext normal operation cmds
+  if (m!^get(next)?\s*$!){
+    my $cmd = $_;
+    my $req = <>;
+    my $ret;
+    chomp($cmd);
+    chomp($req);
 
-  if (m!^PING!){
+    debug (5, "input: cmd= $cmd - req= $req...\n");
+
+    # if ( $cmd eq 'getnext' ) {
+    if ($1) {        # match group
+      debug (5, "     ### TBD: doing getnext\n");
+    } else {
+      debug (5, "     ### TBD: doing get\n");
+    }
+
+  debug (5, "    TBD: deliver some data\n");
+  next;
+  }
+
+#### debug cases below
+
+  if (m!^PING!){    # part of interface definition
     print "PONG\n";
     next;
   }
 
-
   if (m!^exit!){   # safe to keep in production?
-    print "- cancelled -\n";
+    print STDERR "- cancelled -\n";
     exit;
   }
 
@@ -114,7 +135,7 @@ while (<>){   # ===============  main loop =========================i=
     } else {
       # debug(1, "# do the dumper thing\n") ;
       if (m!^dump uci!){
-        print  '\%uci_net_data: ', Dumper( \%uci_net_data);
+        print STDERR '\%uci_net_data: ', Dumper( \%uci_net_data);
       } else{ 
         debug(1, "# do the dumper thing\n") ;
       }
@@ -126,28 +147,10 @@ while (<>){   # ===============  main loop =========================i=
     next;
   }
 
+  debug(0, "end of main loop - cannot recognize command $_ \n") ;
 
-  my $cmd = $_;
-  my $req = <>;
-  my $ret;
-  chomp($cmd);
-  chomp($req);
-
-  debug (5, "input: cmd= $cmd - req= $req...\n");
-
-  if ( $cmd eq 'getnext' ) {
-    debug (5, "     ### TBD: doing getnext\n");
-  } elsif ( $cmd eq 'get' ) {
-    debug (5, "     ### TBD: doing get\n");
-  } else {
-    debug(2, "cmd= $cmd - not recognized\n");
-    next;
-  }
-  debug (5, "    TBD: deliver some data\n");
 
 } # === end of main loop ===========
-
-
 
 
 die "   ===== DEBUG exit or error? ===== ";
