@@ -81,9 +81,13 @@ my %mib_out_cache;
 
 my $time_now = time;
 my $time_last; # = $time_now;
-my $time_updated = 0; # when last data was updated
+my $time_updated = $time_now ;
 
 load_data(); # unconditionally at startup
+$time_now = time;
+debug(4, sprintf "     \$time_updated: %i; \$time_now: %i; initial data load in: %i seconds  \n",
+        $time_updated,  $time_now,  $time_now - $time_updated  );
+$time_updated = $time_now ;
 
 while (<>){   # ===============  main loop =========================i=
   $time_last = $time_now;
@@ -132,11 +136,17 @@ while (<>){   # ===============  main loop =========================i=
   if (m!^dump!){
     if ($on_target) {
       debug(1, "can't 'dump' - Dumper not available at target\n") ;
+
     } else {
       # debug(1, "# do the dumper thing\n") ;
+
       if (m!^dump uci!){
         print STDERR '\%uci_net_data: ', Dumper( \%uci_net_data);
-      } else{ 
+
+      } elsif (m!^dump proc!){
+        print STDERR '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
+
+      } else { 
         debug(1, "# do the dumper thing\n") ;
       }
     }
@@ -255,7 +265,7 @@ sub load_proc_vlan {
   for my $id (keys %proc_vlan_data) {
     my $vldat = $proc_vlan_data{$id};
     my $vl_name = $vldat->{name};
-    print "$vl_name\n";
+    # print "$vl_name\n";
 
     my $vl_dat = "$vlan_dir/$vl_name";
     my @vld_raw = split "\n" , `cat $vl_dat`;
@@ -286,8 +296,8 @@ sub load_proc_vlan {
 
   }
 
-  print '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
-  die "====== bleeding edge ==========~~~~~~~~~~~~~~~~~----------------";
+  # print '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
+  # die "====== bleeding edge ==========~~~~~~~~~~~~~~~~~----------------";
 }
 
 # build mib tree
