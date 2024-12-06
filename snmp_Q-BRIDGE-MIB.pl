@@ -326,12 +326,12 @@ sub load_proc_dev {
   my @rxtaglist = split /\s+/, $rxtags;
   my @txtaglist = split /\s+/, $txtags;
 
-  print Dumper(\@rxtaglist, \@txtaglist);
+  # print Dumper(\@rxtaglist, \@txtaglist);
 
   for my $ln (@devs_raw) {
-    print "$ln\n";
+    # print "$ln\n";
     my @cells = split /\s+/, $ln;
-    print ((join '|', @cells) . "\n");
+    # print ((join '|', @cells) . "\n");
 
     (shift @cells) =~ /^(\S+)\:$/ ;
     my $dev_row = { Interface => $1, RX => {}, TX => {} };
@@ -353,18 +353,27 @@ sub load_proc_dev {
 }
 # @proc_arp_data;       /proc/net/arp 
 sub load_proc_arp {
-  debug(0, "     ... ### TBD load_proc_arp() { ... \n");
+  debug(5, "     ... ### loading /proc/net/arp ... \n");
   my $arp_dir = "$proc_dir/arp";
   my @arps_raw = split "\n" , `cat $arp_dir`;
   die " empty $arp_dir\n" unless scalar @arps_raw;
 
   #my @arptags = qw(IP-address HW- type     Flags       HW address            Mask     Device);
   my @arptags =  split /\s\s+/, (shift @arps_raw);
-  print Dumper(\@arptags);
+  # print Dumper(\@arptags);
 
-  print '\@proc_arp_data: ', Dumper( \@proc_arp_data);
-  die "====== bleeding arp edge ==========~~~~~~~~~~~~~~~~~----------------";
-
+  for my $ln (@arps_raw) {
+    # print "$ln\n";
+    my @cells = split /\s+/, $ln;
+    # print ((join '|', @cells) . "\n");
+    my $arp_row = {};
+    push @proc_arp_data, $arp_row;
+    for my $atg (@arptags) {
+      $arp_row->{$atg} = shift @cells;
+    }
+  }
+  # print '\@proc_arp_data: ', Dumper( \@proc_arp_data);
+  # die "====== bleeding arp edge ==========~~~~~~~~~~~~~~~~~----------------";
 }
 
 
