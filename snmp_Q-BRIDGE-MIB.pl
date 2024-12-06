@@ -179,7 +179,7 @@ sub load_data {
   load_uci_net();
   load_proc_vlan();
   load_proc_dev();
-  # load_proc_arp();
+  load_proc_arp();
 
   debug(4, "... completed initial load_data() \n");
 }
@@ -358,7 +358,9 @@ sub load_proc_arp {
   my @arps_raw = split "\n" , `cat $arp_dir`;
   die " empty $arp_dir\n" unless scalar @arps_raw;
 
-
+  #my @arptags = qw(IP-address HW- type     Flags       HW address            Mask     Device);
+  my @arptags =  split /\s\s+/, (shift @arps_raw);
+  print Dumper(\@arptags);
 
   print '\@proc_arp_data: ', Dumper( \@proc_arp_data);
   die "====== bleeding arp edge ==========~~~~~~~~~~~~~~~~~----------------";
