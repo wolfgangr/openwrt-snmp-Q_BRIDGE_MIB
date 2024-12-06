@@ -77,6 +77,8 @@ my $mib_root = ".1.3.6.1.2.1.17.1.4.1.2";  ### BRIDGE-MIB
 
 my %uci_net_data;
 my %proc_vlan_data;
+my @proc_dev_data;
+my @proc_arp_data;
 my %mib_out_cache;
 
 my $time_now = time;
@@ -85,11 +87,11 @@ my $time_updated = $time_now ;
 
 load_data(); # unconditionally at startup
 $time_now = time;
-debug(4, sprintf "     \$time_updated: %i; \$time_now: %i; initial data load in: %i seconds  \n",
+debug(4, sprintf "     \$time_updated: %i; \$time_now: %i; initial data loaded in %i seconds  \n",
         $time_updated,  $time_now,  $time_now - $time_updated  );
 $time_updated = $time_now ;
 
-while (<>){   # ===============  main loop =========================i=
+while (<>){   # ===============  main loop ==========================
   $time_last = $time_now;
   $time_now = time;
   debug(1, "# check // load data \n") ;
@@ -143,8 +145,14 @@ while (<>){   # ===============  main loop =========================i=
       if (m!^dump uci!){
         print STDERR '\%uci_net_data: ', Dumper( \%uci_net_data);
 
-      } elsif (m!^dump proc!){
+      } elsif (m!^dump vlan!){
         print STDERR '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
+
+      } elsif (m!^dump dev!){
+        print STDERR '\@proc_dev_data: ', Dumper( \@proc_dev_data);
+
+      } elsif (m!^dump arp!){
+        print STDERR '\@proc_arp_data: ', Dumper( \@proc_arp_data);
 
       } else { 
         debug(1, "# do the dumper thing\n") ;
@@ -296,13 +304,41 @@ sub load_proc_vlan {
 
   }
 
+  # cat /proc/net/dev
   # print '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
   # die "====== bleeding edge ==========~~~~~~~~~~~~~~~~~----------------";
 }
 
-# build mib tree
-# %mib_out_cache;
 
+# @proc_dev_data;       /proc/net/dev
+sub load_proc_dev {
+  debug(0, "     ... ### TBD load_proc_dev() { ... \n");
+  my $dev_dir = "$proc_dir/dev";
+  my @devs_raw = split "\n" , `cat $dev_dir`;
+  die " empty $dev_dir\n" unless scalar @devs_raw;
+
+  print '\@proc_dev_data: ', Dumper( \@proc_arp_data);
+  die "====== bleeding dev edge ==========~~~~~~~~~~~~~~~~~----------------";
+
+}
+# @proc_arp_data;       /proc/net/arp 
+sub load_proc_arp {
+  debug(0, "     ... ### TBD load_proc_arp() { ... \n");
+  my $arp_dir = "$proc_dir/arp";
+  my @arps_raw = split "\n" , `cat $arp_dir`;
+  die " empty $arp_dir\n" unless scalar @arps_raw;
+
+
+
+  print '\@proc_arp_data: ', Dumper( \@proc_arp_data);
+  die "====== bleeding arp edge ==========~~~~~~~~~~~~~~~~~----------------";
+
+}
+
+
+#
+# ====================================build mib tree ==================0
+# %mib_out_cache;
 
 
 
