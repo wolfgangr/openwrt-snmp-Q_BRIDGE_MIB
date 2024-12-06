@@ -226,6 +226,7 @@ sub load_uci_net {
 
 # %proc_vlan_data;
 sub load_proc_vlan {
+  
   debug(0, "     ... ### TBD load_proc_vlan() { ... \n");
   my $vlan_dir = "$proc_dir/vlan";
   my $vlan_conf = "$vlan_dir/config";
@@ -240,14 +241,35 @@ sub load_proc_vlan {
     die "second line of $vlan_conf does not match" ;
   }
 
+  %proc_vlan_data = (); # start afresh
+
   debug(5, "parsing \@vlans_raw with $#vlans_raw data rows\n");
   for my $line (@vlans_raw) {
-    print $line;
+    # print $line;
     my ($vl_name, $vl_id, $vl_iface) = split /\s*\|\s+/, $line; 
-    print join(':', ($vl_name, $vl_id, $vl_iface) ); 
+    # print join(':', ($vl_name, $vl_id, $vl_iface) ); 
     $proc_vlan_data{$vl_id} = { ID => $vl_id, 
         name => $vl_name, port => $vl_iface };
   }
+
+  for my $id (keys %proc_vlan_data) {
+    my $vldat = $proc_vlan_data{$id};
+    my $vl_name = $vldat->{name};
+    print "$vl_name\n";
+
+    my $vl_dat = "$vlan_dir/$vl_name";
+    my @vld_raw = split "\n" , `cat $vl_dat`;
+    die "cannot process $vlan_conf" if scalar @vld_raw < 5;
+    # bond-bond0.4081  VID: 4081       REORDER_HDR: 1  dev->priv_flags: 1021
+    # ^(\S+)\s*VID\:\s*(\d+)\s+REORDER_HDR\:\s*(\d+)\s*dev\-\>priv\_flags\:\s*(\d+)\s*$
+
+    my $nl = shift @vld_raw;
+    $nl =~ /^(\S+)\s*VID\:\s*(\d+)\s+REORDER_HDR\:\s*(\d+)\s*dev\-\>priv\_flags\:\s*(\d+)\s*$/ ;
+    $vldat->{data} = { name => $1, ID => $2, REORDER_HDR => $3, dev_priv_flags => $4 };
+    print "next line of remaining $#vld_raw lines:\n" . (shift @vld_raw) . "\n"; 
+    last ;
+  }
+
   print '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
   die "====== bleeding edge ==========~~~~~~~~~~~~~~~~~----------------";
 }
