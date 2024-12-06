@@ -42,11 +42,14 @@
 my $debug=5; 		# debug level
 my $on_target=0;	# 0 for debian test environment, 1 for openWrt target widget
 
-unless ($on_target) {
+# unless ($on_target) {
   use warnings;
   use strict;
+unless ($on_target) {
   use Data::Dumper;   
 }
+
+my $foo = 'bar';
 
 # config of the real gadget data source
 my $uci_show_net = '/sbin/uci show network';
