@@ -163,7 +163,10 @@ sub load_uci_net() {
   debug(0, "### TBD load_uci_net() {\n");
   my @uci_raw = split "\n" , `$uci_show_net`;
   die "executeing $uci_show_net delivered empty result\n" unless scalar @uci_raw;
+
+  my $cb; # keep track of current blocks over multiple lines
   for my $line (@uci_raw) {
+  # while (my $line = shift @uci_raw) {
     # print "$line\n";
     my ($tag, $val) = split '=', $line;
     my @chunks = split /\./, $tag;
@@ -177,7 +180,7 @@ sub load_uci_net() {
     }
 
     # print ((join ' | ', @chunks) . " = >$val<\n");
-    my $cb; # keep track of current blocks over multiple lines
+    # my $cb; # keep track of current blocks over multiple lines
     if ($val eq 'device' or $val eq 'interface' or $val eq 'globals') {
       $cb = { defname => $c1, class => $val };
       $uci_net_data{$c1} = $cb;
@@ -197,8 +200,15 @@ sub load_uci_net() {
       debug(5, "skipping to parse section $c1 ");
       next;
     }
-
+    
+    if ($uci_net_data{$c1} == $cb and $chunks[2]) {
+      $val =~ /^'(.*)'$/;
+      $cb->{$chunks[2]} = $1 ;
+      next;
+    } 
+    # should not be here
     print ((join ' | ', @chunks) . " = >$val<\n");
+    die "case not implemented";
   }
 
 
