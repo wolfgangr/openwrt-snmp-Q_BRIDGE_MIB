@@ -76,18 +76,30 @@ while (<>){
     next;
   }
 
+  if (m!^exit!){
+    print "- cancelled -\n";
+    exit;
+  }
+
+
   my $cmd = $_;
   my $req = <>;
   my $ret;
   chomp($cmd);
   chomp($req);
 
-  if ( $cmd eq "getnext" ) {
-  } elsif ( $cmd eq "get" ) {
+  debug (5, "input: cmd= $cmd - req= $req...\n");
+
+  if ( $cmd eq 'getnext' ) {
+    debug (5, "     ### TBD: doing getnext\n");
+  } elsif ( $cmd eq 'get' ) {
+    debug (5, "     ### TBD: doing get\n");
   } else {
     debug(2, "cmd= $cmd - not recognized\n");
     next;
   }
+  debug (5, "    TBD: deliver some data\n");
+
 }
 
 
@@ -99,7 +111,7 @@ die "   ===== DEBUG exit or error? ===== ";
 
 sub debug {
   my ($l, $msg) = @_;
-  print STDERR 'DEBUG: ', $msg if $l >= $debug;
+  print STDERR 'DEBUG: ', $msg if $l <= $debug;
 }
 
 
