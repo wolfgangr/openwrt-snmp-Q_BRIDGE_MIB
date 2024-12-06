@@ -160,8 +160,10 @@ sub load_uci_net() {
   debug(0, "### TBD load_uci_net() {\n");
   my @uci_raw = split "\n" , `$uci_show_net`;
   die "executeing $uci_show_net delivered empty result\n" unless scalar @uci_raw;
-  for my $l (@uci_raw) {
+  for my $line (@uci_raw) {
     print "$l\n";
+    my @chunks = split '.', $line;
+    die "illegal line $l in input stream\n" unless (shift @chunks eq 'network');
   }
   die " ===== bleeding edge ========~~~~~~~~~~~~~~~~------------------";
 }
