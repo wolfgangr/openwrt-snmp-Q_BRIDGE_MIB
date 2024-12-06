@@ -70,9 +70,29 @@ debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
 my $mib_root = ".1.3.6.1.2.1.17.1.4.1.2";  ### BRIDGE-MIB
 
 
-while (<>){
+# skript level globals to share with subs
 
+my %uci_net_data;
+my %proc_vlan_data;
+my %mib_out_cache;
+
+my $time_now = time;
+my $time_last; # = $time_now;
+my $time_updated; # when last data was updated
+
+load_data(); # unconditionally at startup
+
+while (<>){   # ===============  main loop =========================i=
+  $time_last = $time_now;
+  $time_now = time;
   debug(1, "# check // load data \n") ;
+  check_data(); # reload only if required
+
+  debug(5, sprintf "     \$time_now: %i; \$time_last: %i; passed: %i seconds  \n",
+	$time_now,  $time_last,  $time_now - $time_last  );
+  debug(5, sprintf "     \$time_now: %i; \$time_updated: %i; age of data: %i seconds  \n",
+        $time_now,  $time_updated,  $time_now - $time_updated  );
+
 
   if (m!^PING!){
     print "PONG\n";
@@ -115,14 +135,35 @@ while (<>){
   }
   debug (5, "    TBD: deliver some data\n");
 
-}
+} # === end of main loop ===========
 
 
 
 
 die "   ===== DEBUG exit or error? ===== ";
-# =============== subs =================
+# =============== subs ========================================================
 
+sub load_data() {
+  debug(1, "### TBD load_data() {\n");
+  load_uci_net();
+  load_proc_vlan();
+}
+
+sub check_data() {
+  debug(0, "### TBD check_data() {\n");
+  load_uci_net() if 0;
+  load_proc_vlan() if 0;
+}
+
+sub load_uci_net() {
+  debug(0, "### TBD load_uci_net() {\n");
+}
+
+sub load_proc_vlan() {
+  debug(0, "### TBD load_proc_vlan() {\n");
+}
+
+# ------------------ helper stuff ---------------
 
 sub debug {
   my ($l, $msg) = @_;
