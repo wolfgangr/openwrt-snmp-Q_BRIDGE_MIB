@@ -81,7 +81,7 @@ my %mib_out_cache;
 
 my $time_now = time;
 my $time_last; # = $time_now;
-my $time_updated; # when last data was updated
+my $time_updated = 0; # when last data was updated
 
 load_data(); # unconditionally at startup
 
@@ -112,11 +112,18 @@ while (<>){   # ===============  main loop =========================i=
     if ($on_target) {
       debug(1, "can't 'dump' - Dumper not available at target\n") ;
     } else {
-      debug(1, "# do the dumper thing\n") ;
+      # debug(1, "# do the dumper thing\n") ;
+      if (m!^dump uci!){
+        print  '\%uci_net_data: ', Dumper( \%uci_net_data);
+      } else{ 
+        debug(1, "# do the dumper thing\n") ;
+      }
     }
+    next;
   }    
   if (m!^print!){
     debug(1, "# print data in tab form\n") ;
+    next;
   }
 
 
@@ -146,44 +153,40 @@ while (<>){   # ===============  main loop =========================i=
 die "   ===== DEBUG exit or error? ===== ";
 # =============== subs ========================================================
 
-sub load_data() {
+sub load_data {
   debug(3, "### TBD load_data() {\n");
   load_uci_net();
   load_proc_vlan();
 }
 
-sub check_data() {
+sub check_data {
   debug(0, "### TBD check_data() {\n");
   load_uci_net() if 0;
   load_proc_vlan() if 0;
 }
 
 # fill %uci_net_data;
-sub load_uci_net() {
+sub load_uci_net {
   debug(0, "### TBD load_uci_net() {\n");
   my @uci_raw = split "\n" , `$uci_show_net`;
   die "executeing $uci_show_net delivered empty result\n" unless scalar @uci_raw;
 
   my $cb; # keep track of current blocks over multiple lines
   for my $line (@uci_raw) {
-  # while (my $line = shift @uci_raw) {
     # print "$line\n";
     my ($tag, $val) = split '=', $line;
     my @chunks = split /\./, $tag;
     # print ((join ' | ', @chunks) . " = >$val<\n");
-    # my $c1 = shift @chunks;
-    # print Dumper(\@chunks);
     my $c1 = $chunks[1];
     unless ($chunks[0] eq 'network') {
       debug(2, "illegal chunk $c1 in line $line in input stream\n") ;
       next;
     }
 
-    # print ((join ' | ', @chunks) . " = >$val<\n");
-    # my $cb; # keep track of current blocks over multiple lines
+    # only these sections are evaluated, others may throw error or undefined behaviour
     if ($val eq 'device' or $val eq 'interface' or $val eq 'globals') {
       $cb = { defname => $c1, class => $val };
-      $uci_net_data{$c1} = $cb;
+      $uci_net_data{$c1} = $cb;  # create new item for section $c1
       # @device[5]
       my($class, $id) = ( $c1 =~ /^@(\w+)\[(\d+)\]$/ );
       if ($class and $class eq 'device') {
@@ -213,12 +216,12 @@ sub load_uci_net() {
 
 
   # ========~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~------------------
-  print  '\%uci_net_data: ', Dumper( \%uci_net_data);
-  die " ===== bleeding edge ========~~~~~~~~~~~~~~~~------------------";
+  # print  '\%uci_net_data: ', Dumper( \%uci_net_data);
+  # die " ===== bleeding edge ========~~~~~~~~~~~~~~~~------------------";
 }
 
 # %proc_vlan_data;
-sub load_proc_vlan() {
+sub load_proc_vlan {
   debug(0, "### TBD load_proc_vlan() {\n");
 }
 
