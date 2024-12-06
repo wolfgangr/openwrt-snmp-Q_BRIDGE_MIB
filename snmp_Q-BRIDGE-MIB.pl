@@ -144,7 +144,7 @@ die "   ===== DEBUG exit or error? ===== ";
 # =============== subs ========================================================
 
 sub load_data() {
-  debug(1, "### TBD load_data() {\n");
+  debug(3, "### TBD load_data() {\n");
   load_uci_net();
   load_proc_vlan();
 }
@@ -155,13 +155,27 @@ sub check_data() {
   load_proc_vlan() if 0;
 }
 
+# fill %uci_net_data;
 sub load_uci_net() {
   debug(0, "### TBD load_uci_net() {\n");
+  my @uci_raw = split "\n" , `$uci_show_net`;
+  die "executeing $uci_show_net delivered empty result\n" unless scalar @uci_raw;
+  for my $l (@uci_raw) {
+    print "$l\n";
+  }
+  die " ===== bleeding edge ========~~~~~~~~~~~~~~~~------------------";
 }
 
+# %proc_vlan_data;
 sub load_proc_vlan() {
   debug(0, "### TBD load_proc_vlan() {\n");
 }
+
+# build mib tree
+# %mib_out_cache;
+
+
+
 
 # ------------------ helper stuff ---------------
 
