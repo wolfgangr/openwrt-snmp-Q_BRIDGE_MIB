@@ -265,9 +265,25 @@ sub load_proc_vlan {
 
     my $nl = shift @vld_raw;
     $nl =~ /^(\S+)\s*VID\:\s*(\d+)\s+REORDER_HDR\:\s*(\d+)\s*dev\-\>priv\_flags\:\s*(\d+)\s*$/ ;
-    $vldat->{data} = { name => $1, ID => $2, REORDER_HDR => $3, dev_priv_flags => $4 };
-    print "next line of remaining $#vld_raw lines:\n" . (shift @vld_raw) . "\n"; 
-    last ;
+    my $datasub = $vldat->{data} = { name => $1, ID => $2, REORDER_HDR => $3, dev_priv_flags => $4 };
+
+    while (defined ($nl = shift @vld_raw) ) {
+      next if $nl =~ /^\s*$/;
+
+      #       Broadcast/Multicast Rcvd          104
+      if ( $nl =~ /^\s*(\S.*\S)\s+(\d+)\s*$/ ) {
+        $datasub->{$1} = $2;
+      # }
+      #  INGRESS priority mappings: 0:0  1:0  2:0  3:0  4:0  5:0  6:0 7:0
+      } elsif ( $nl =~ /^\s*(\S.*\S)\:\s+(\S.*\S)\s*$/ ) {
+        $datasub->{$1} = $2;
+      }
+
+    }
+
+    # print "next line of remaining $#vld_raw lines:\n" . (shift @vld_raw) . "\n"; 
+    # last ;
+
   }
 
   print '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
