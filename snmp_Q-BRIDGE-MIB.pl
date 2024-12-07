@@ -89,13 +89,15 @@ my @proc_dev_data;
 my @proc_arp_data;
 my %mib_out_cache;
 my @mib_tab;
-my @ports;
+my @Cports;
+my @Sports;
 
 my %dump_def = (  # pointer, label   
   uci  => [\%uci_net_data,    '%uci_net_data' ],
   vlan => [\%proc_vlan_data , '%proc_vlan_data' ],
   dev  => [\@proc_dev_data  , '@proc_dev_data' ],
-  ports => [\@ports , '@ports'] ,
+  cports => [\@Cports , '@Cports'] ,
+  sports => [\@Sports , '@Sports'] ,
   arp  => [\@proc_arp_data  , '@proc_arp_data' ],
   mib  => [\%mib_out_cache  , '%mib_out_cache' ],
   mibtab => [\@mib_tab , '@mib_tab'] , 
@@ -354,8 +356,11 @@ sub load_proc_dev {
 
   for my $ln (@devs_raw) {
     # print "$ln\n";
+    # $string =~ s/^\s+|\s+$//g ;
+    $ln =~ s/^\s+|//g ;
     my @cells = split /\s+/, $ln;
     # print ((join '|', @cells) . "\n");
+    # lo: interface has leading spaces...
 
     (shift @cells) =~ /^(\S+)\:$/ ;
     my $dev_row = { Interface => $1, RX => {}, TX => {} };
