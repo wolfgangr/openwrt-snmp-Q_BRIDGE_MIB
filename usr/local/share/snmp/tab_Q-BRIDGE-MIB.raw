@@ -1,0 +1,115 @@
+# https://www.oidview.com/mibs/0/Q-BRIDGE-MIB.html
+# Object Name	Object Identifier	Object Type
+qBridgeMIB qBridgeMIB 	1.3.6.1.2.1.17.7 	MODULE-IDENTITY
+qBridgeMIBObjects qBridgeMIBObjects 	1.3.6.1.2.1.17.7.1 	OBJECT IDENTIFIER
+dot1qBase dot1qBase 	1.3.6.1.2.1.17.7.1.1 	OBJECT IDENTIFIER
+dot1qVlanVersionNumber dot1qVlanVersionNumber 	1.3.6.1.2.1.17.7.1.1.1 	OBJECT-TYPE
+dot1qMaxVlanId dot1qMaxVlanId 	1.3.6.1.2.1.17.7.1.1.2 	OBJECT-TYPE
+dot1qMaxSupportedVlans dot1qMaxSupportedVlans 	1.3.6.1.2.1.17.7.1.1.3 	OBJECT-TYPE
+dot1qNumVlans dot1qNumVlans 	1.3.6.1.2.1.17.7.1.1.4 	OBJECT-TYPE
+dot1qGvrpStatus dot1qGvrpStatus 	1.3.6.1.2.1.17.7.1.1.5 	OBJECT-TYPE
+dot1qTp dot1qTp 	1.3.6.1.2.1.17.7.1.2 	OBJECT IDENTIFIER
+dot1qFdbTable dot1qFdbTable 	1.3.6.1.2.1.17.7.1.2.1 	OBJECT-TYPE
+dot1qFdbEntry dot1qFdbEntry 	1.3.6.1.2.1.17.7.1.2.1.1 	OBJECT-TYPE
+dot1qFdbId dot1qFdbId 	1.3.6.1.2.1.17.7.1.2.1.1.1 	OBJECT-TYPE
+dot1qFdbDynamicCount dot1qFdbDynamicCount 	1.3.6.1.2.1.17.7.1.2.1.1.2 	OBJECT-TYPE
+dot1qTpFdbTable dot1qTpFdbTable 	1.3.6.1.2.1.17.7.1.2.2 	OBJECT-TYPE
+dot1qTpFdbEntry dot1qTpFdbEntry 	1.3.6.1.2.1.17.7.1.2.2.1 	OBJECT-TYPE
+dot1qTpFdbAddress dot1qTpFdbAddress 	1.3.6.1.2.1.17.7.1.2.2.1.1 	OBJECT-TYPE
+dot1qTpFdbPort dot1qTpFdbPort 	1.3.6.1.2.1.17.7.1.2.2.1.2 	OBJECT-TYPE
+dot1qTpFdbStatus dot1qTpFdbStatus 	1.3.6.1.2.1.17.7.1.2.2.1.3 	OBJECT-TYPE
+dot1qTpGroupTable dot1qTpGroupTable 	1.3.6.1.2.1.17.7.1.2.3 	OBJECT-TYPE
+dot1qTpGroupEntry dot1qTpGroupEntry 	1.3.6.1.2.1.17.7.1.2.3.1 	OBJECT-TYPE
+dot1qTpGroupAddress dot1qTpGroupAddress 	1.3.6.1.2.1.17.7.1.2.3.1.1 	OBJECT-TYPE
+dot1qTpGroupEgressPorts dot1qTpGroupEgressPorts 	1.3.6.1.2.1.17.7.1.2.3.1.2 	OBJECT-TYPE
+dot1qTpGroupLearnt dot1qTpGroupLearnt 	1.3.6.1.2.1.17.7.1.2.3.1.3 	OBJECT-TYPE
+dot1qForwardAllTable dot1qForwardAllTable 	1.3.6.1.2.1.17.7.1.2.4 	OBJECT-TYPE
+dot1qForwardAllEntry dot1qForwardAllEntry 	1.3.6.1.2.1.17.7.1.2.4.1 	OBJECT-TYPE
+dot1qForwardAllPorts dot1qForwardAllPorts 	1.3.6.1.2.1.17.7.1.2.4.1.1 	OBJECT-TYPE
+dot1qForwardAllStaticPorts dot1qForwardAllStaticPorts 	1.3.6.1.2.1.17.7.1.2.4.1.2 	OBJECT-TYPE
+dot1qForwardAllForbiddenPorts dot1qForwardAllForbiddenPorts 	1.3.6.1.2.1.17.7.1.2.4.1.3 	OBJECT-TYPE
+dot1qForwardUnregisteredTable dot1qForwardUnregisteredTable 	1.3.6.1.2.1.17.7.1.2.5 	OBJECT-TYPE
+dot1qForwardUnregisteredEntry dot1qForwardUnregisteredEntry 	1.3.6.1.2.1.17.7.1.2.5.1 	OBJECT-TYPE
+dot1qForwardUnregisteredPorts dot1qForwardUnregisteredPorts 	1.3.6.1.2.1.17.7.1.2.5.1.1 	OBJECT-TYPE
+dot1qForwardUnregisteredStaticPorts dot1qForwardUnregisteredStaticPorts 	1.3.6.1.2.1.17.7.1.2.5.1.2 	OBJECT-TYPE
+dot1qForwardUnregisteredForbiddenPorts dot1qForwardUnregisteredForbiddenPorts 	1.3.6.1.2.1.17.7.1.2.5.1.3 	OBJECT-TYPE
+dot1qStatic dot1qStatic 	1.3.6.1.2.1.17.7.1.3 	OBJECT IDENTIFIER
+dot1qStaticUnicastTable dot1qStaticUnicastTable 	1.3.6.1.2.1.17.7.1.3.1 	OBJECT-TYPE
+dot1qStaticUnicastEntry dot1qStaticUnicastEntry 	1.3.6.1.2.1.17.7.1.3.1.1 	OBJECT-TYPE
+dot1qStaticUnicastAddress dot1qStaticUnicastAddress 	1.3.6.1.2.1.17.7.1.3.1.1.1 	OBJECT-TYPE
+dot1qStaticUnicastReceivePort dot1qStaticUnicastReceivePort 	1.3.6.1.2.1.17.7.1.3.1.1.2 	OBJECT-TYPE
+dot1qStaticUnicastAllowedToGoTo dot1qStaticUnicastAllowedToGoTo 	1.3.6.1.2.1.17.7.1.3.1.1.3 	OBJECT-TYPE
+dot1qStaticUnicastStatus dot1qStaticUnicastStatus 	1.3.6.1.2.1.17.7.1.3.1.1.4 	OBJECT-TYPE
+dot1qStaticMulticastTable dot1qStaticMulticastTable 	1.3.6.1.2.1.17.7.1.3.2 	OBJECT-TYPE
+dot1qStaticMulticastEntry dot1qStaticMulticastEntry 	1.3.6.1.2.1.17.7.1.3.2.1 	OBJECT-TYPE
+dot1qStaticMulticastAddress dot1qStaticMulticastAddress 	1.3.6.1.2.1.17.7.1.3.2.1.1 	OBJECT-TYPE
+dot1qStaticMulticastReceivePort dot1qStaticMulticastReceivePort 	1.3.6.1.2.1.17.7.1.3.2.1.2 	OBJECT-TYPE
+dot1qStaticMulticastStaticEgressPorts dot1qStaticMulticastStaticEgressPorts 	1.3.6.1.2.1.17.7.1.3.2.1.3 	OBJECT-TYPE
+dot1qStaticMulticastForbiddenEgressPorts dot1qStaticMulticastForbiddenEgressPorts 	1.3.6.1.2.1.17.7.1.3.2.1.4 	OBJECT-TYPE
+dot1qStaticMulticastStatus dot1qStaticMulticastStatus 	1.3.6.1.2.1.17.7.1.3.2.1.5 	OBJECT-TYPE
+dot1qVlan dot1qVlan 	1.3.6.1.2.1.17.7.1.4 	OBJECT IDENTIFIER
+dot1qVlanNumDeletes dot1qVlanNumDeletes 	1.3.6.1.2.1.17.7.1.4.1 	OBJECT-TYPE
+dot1qConstraintTypeDefault dot1qConstraintTypeDefault 	1.3.6.1.2.1.17.7.1.4.10 	OBJECT-TYPE
+dot1qVlanCurrentTable dot1qVlanCurrentTable 	1.3.6.1.2.1.17.7.1.4.2 	OBJECT-TYPE
+dot1qVlanCurrentEntry dot1qVlanCurrentEntry 	1.3.6.1.2.1.17.7.1.4.2.1 	OBJECT-TYPE
+dot1qVlanTimeMark dot1qVlanTimeMark 	1.3.6.1.2.1.17.7.1.4.2.1.1 	OBJECT-TYPE
+dot1qVlanIndex dot1qVlanIndex 	1.3.6.1.2.1.17.7.1.4.2.1.2 	OBJECT-TYPE
+dot1qVlanFdbId dot1qVlanFdbId 	1.3.6.1.2.1.17.7.1.4.2.1.3 	OBJECT-TYPE
+dot1qVlanCurrentEgressPorts dot1qVlanCurrentEgressPorts 	1.3.6.1.2.1.17.7.1.4.2.1.4 	OBJECT-TYPE
+dot1qVlanCurrentUntaggedPorts dot1qVlanCurrentUntaggedPorts 	1.3.6.1.2.1.17.7.1.4.2.1.5 	OBJECT-TYPE
+dot1qVlanStatus dot1qVlanStatus 	1.3.6.1.2.1.17.7.1.4.2.1.6 	OBJECT-TYPE
+dot1qVlanCreationTime dot1qVlanCreationTime 	1.3.6.1.2.1.17.7.1.4.2.1.7 	OBJECT-TYPE
+dot1qVlanStaticTable dot1qVlanStaticTable 	1.3.6.1.2.1.17.7.1.4.3 	OBJECT-TYPE
+dot1qVlanStaticEntry dot1qVlanStaticEntry 	1.3.6.1.2.1.17.7.1.4.3.1 	OBJECT-TYPE
+dot1qVlanStaticName dot1qVlanStaticName 	1.3.6.1.2.1.17.7.1.4.3.1.1 	OBJECT-TYPE
+dot1qVlanStaticEgressPorts dot1qVlanStaticEgressPorts 	1.3.6.1.2.1.17.7.1.4.3.1.2 	OBJECT-TYPE
+dot1qVlanForbiddenEgressPorts dot1qVlanForbiddenEgressPorts 	1.3.6.1.2.1.17.7.1.4.3.1.3 	OBJECT-TYPE
+dot1qVlanStaticUntaggedPorts dot1qVlanStaticUntaggedPorts 	1.3.6.1.2.1.17.7.1.4.3.1.4 	OBJECT-TYPE
+dot1qVlanStaticRowStatus dot1qVlanStaticRowStatus 	1.3.6.1.2.1.17.7.1.4.3.1.5 	OBJECT-TYPE
+dot1qNextFreeLocalVlanIndex dot1qNextFreeLocalVlanIndex 	1.3.6.1.2.1.17.7.1.4.4 	OBJECT-TYPE
+dot1qPortVlanTable dot1qPortVlanTable 	1.3.6.1.2.1.17.7.1.4.5 	OBJECT-TYPE
+dot1qPortVlanEntry dot1qPortVlanEntry 	1.3.6.1.2.1.17.7.1.4.5.1 	OBJECT-TYPE
+dot1qPvid dot1qPvid 	1.3.6.1.2.1.17.7.1.4.5.1.1 	OBJECT-TYPE
+dot1qPortAcceptableFrameTypes dot1qPortAcceptableFrameTypes 	1.3.6.1.2.1.17.7.1.4.5.1.2 	OBJECT-TYPE
+dot1qPortIngressFiltering dot1qPortIngressFiltering 	1.3.6.1.2.1.17.7.1.4.5.1.3 	OBJECT-TYPE
+dot1qPortGvrpStatus dot1qPortGvrpStatus 	1.3.6.1.2.1.17.7.1.4.5.1.4 	OBJECT-TYPE
+dot1qPortGvrpFailedRegistrations dot1qPortGvrpFailedRegistrations 	1.3.6.1.2.1.17.7.1.4.5.1.5 	OBJECT-TYPE
+dot1qPortGvrpLastPduOrigin dot1qPortGvrpLastPduOrigin 	1.3.6.1.2.1.17.7.1.4.5.1.6 	OBJECT-TYPE
+dot1qPortVlanStatisticsTable dot1qPortVlanStatisticsTable 	1.3.6.1.2.1.17.7.1.4.6 	OBJECT-TYPE
+dot1qPortVlanStatisticsEntry dot1qPortVlanStatisticsEntry 	1.3.6.1.2.1.17.7.1.4.6.1 	OBJECT-TYPE
+dot1qTpVlanPortInFrames dot1qTpVlanPortInFrames 	1.3.6.1.2.1.17.7.1.4.6.1.1 	OBJECT-TYPE
+dot1qTpVlanPortOutFrames dot1qTpVlanPortOutFrames 	1.3.6.1.2.1.17.7.1.4.6.1.2 	OBJECT-TYPE
+dot1qTpVlanPortInDiscards dot1qTpVlanPortInDiscards 	1.3.6.1.2.1.17.7.1.4.6.1.3 	OBJECT-TYPE
+dot1qTpVlanPortInOverflowFrames dot1qTpVlanPortInOverflowFrames 	1.3.6.1.2.1.17.7.1.4.6.1.4 	OBJECT-TYPE
+dot1qTpVlanPortOutOverflowFrames dot1qTpVlanPortOutOverflowFrames 	1.3.6.1.2.1.17.7.1.4.6.1.5 	OBJECT-TYPE
+dot1qTpVlanPortInOverflowDiscards dot1qTpVlanPortInOverflowDiscards 	1.3.6.1.2.1.17.7.1.4.6.1.6 	OBJECT-TYPE
+dot1qPortVlanHCStatisticsTable dot1qPortVlanHCStatisticsTable 	1.3.6.1.2.1.17.7.1.4.7 	OBJECT-TYPE
+dot1qPortVlanHCStatisticsEntry dot1qPortVlanHCStatisticsEntry 	1.3.6.1.2.1.17.7.1.4.7.1 	OBJECT-TYPE
+dot1qTpVlanPortHCInFrames dot1qTpVlanPortHCInFrames 	1.3.6.1.2.1.17.7.1.4.7.1.1 	OBJECT-TYPE
+dot1qTpVlanPortHCOutFrames dot1qTpVlanPortHCOutFrames 	1.3.6.1.2.1.17.7.1.4.7.1.2 	OBJECT-TYPE
+dot1qTpVlanPortHCInDiscards dot1qTpVlanPortHCInDiscards 	1.3.6.1.2.1.17.7.1.4.7.1.3 	OBJECT-TYPE
+dot1qLearningConstraintsTable dot1qLearningConstraintsTable 	1.3.6.1.2.1.17.7.1.4.8 	OBJECT-TYPE
+dot1qLearningConstraintsEntry dot1qLearningConstraintsEntry 	1.3.6.1.2.1.17.7.1.4.8.1 	OBJECT-TYPE
+dot1qConstraintVlan dot1qConstraintVlan 	1.3.6.1.2.1.17.7.1.4.8.1.1 	OBJECT-TYPE
+dot1qConstraintSet dot1qConstraintSet 	1.3.6.1.2.1.17.7.1.4.8.1.2 	OBJECT-TYPE
+dot1qConstraintType dot1qConstraintType 	1.3.6.1.2.1.17.7.1.4.8.1.3 	OBJECT-TYPE
+dot1qConstraintStatus dot1qConstraintStatus 	1.3.6.1.2.1.17.7.1.4.8.1.4 	OBJECT-TYPE
+dot1qConstraintSetDefault dot1qConstraintSetDefault 	1.3.6.1.2.1.17.7.1.4.9 	OBJECT-TYPE
+qBridgeConformance qBridgeConformance 	1.3.6.1.2.1.17.7.2 	OBJECT IDENTIFIER
+qBridgeGroups qBridgeGroups 	1.3.6.1.2.1.17.7.2.1 	OBJECT IDENTIFIER
+qBridgeBaseGroup qBridgeBaseGroup 	1.3.6.1.2.1.17.7.2.1.1 	OBJECT-GROUP
+qBridgeVlanStatisticsOverflowGroup qBridgeVlanStatisticsOverflowGroup 	1.3.6.1.2.1.17.7.2.1.10 	OBJECT-GROUP
+qBridgeVlanHCStatisticsGroup qBridgeVlanHCStatisticsGroup 	1.3.6.1.2.1.17.7.2.1.11 	OBJECT-GROUP
+qBridgeLearningConstraintsGroup qBridgeLearningConstraintsGroup 	1.3.6.1.2.1.17.7.2.1.12 	OBJECT-GROUP
+qBridgeLearningConstraintDefaultGroup qBridgeLearningConstraintDefaultGroup 	1.3.6.1.2.1.17.7.2.1.13 	OBJECT-GROUP
+qBridgeFdbUnicastGroup qBridgeFdbUnicastGroup 	1.3.6.1.2.1.17.7.2.1.2 	OBJECT-GROUP
+qBridgeFdbMulticastGroup qBridgeFdbMulticastGroup 	1.3.6.1.2.1.17.7.2.1.3 	OBJECT-GROUP
+qBridgeServiceRequirementsGroup qBridgeServiceRequirementsGroup 	1.3.6.1.2.1.17.7.2.1.4 	OBJECT-GROUP
+qBridgeFdbStaticGroup qBridgeFdbStaticGroup 	1.3.6.1.2.1.17.7.2.1.5 	OBJECT-GROUP
+qBridgeVlanGroup qBridgeVlanGroup 	1.3.6.1.2.1.17.7.2.1.6 	OBJECT-GROUP
+qBridgeVlanStaticGroup qBridgeVlanStaticGroup 	1.3.6.1.2.1.17.7.2.1.7 	OBJECT-GROUP
+qBridgePortGroup qBridgePortGroup 	1.3.6.1.2.1.17.7.2.1.8 	OBJECT-GROUP
+qBridgeVlanStatisticsGroup qBridgeVlanStatisticsGroup 	1.3.6.1.2.1.17.7.2.1.9 	OBJECT-GROUP
+qBridgeCompliances qBridgeCompliances 	1.3.6.1.2.1.17.7.2.2 	OBJECT IDENTIFIER
+qBridgeCompliance qBridgeCompliance 	1.3.6.1.2.1.17.7.2.2.1 	MODULE-COMPLIANCE
+
