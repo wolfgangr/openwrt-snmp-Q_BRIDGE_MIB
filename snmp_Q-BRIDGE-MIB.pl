@@ -157,24 +157,10 @@ while (<>){   # ===============  main loop ==========================
       debug(1, "can't 'dump' - Dumper not available at target\n") ;
 
     } else {
+      # dumps as defined in %dump_def if key matches $1
       if (my $to_dump = $dump_def{$1}) {
         debug(1, "dump of $$to_dump[1]:\n") ;
         print STDERR "$$to_dump[1]: ", Dumper( $$to_dump[0]);
-
-#      if (m!^dump uci!){
-        # %dump_def 
-
-
-#        print STDERR '\%uci_net_data: ', Dumper( \%uci_net_data);
-#
-#      } elsif (m!^dump vlan!){
-#        print STDERR '\%proc_vlan_data: ', Dumper( \%proc_vlan_data);
-#
-#      } elsif (m!^dump dev!){
-#        print STDERR '\@proc_dev_data: ', Dumper( \@proc_dev_data);
-#
-#      } elsif (m!^dump arp!){
-#        print STDERR '\@proc_arp_data: ', Dumper( \@proc_arp_data);
 
       } else { 
         debug(1, "unknown dumper target: $1\n") ;
