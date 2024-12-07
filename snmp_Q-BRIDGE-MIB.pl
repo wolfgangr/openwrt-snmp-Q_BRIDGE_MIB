@@ -51,17 +51,22 @@ unless ($on_target) {
 
 my $foo = 'bar';
 
+# grep patterns as first interface sorting criterion
+my @sort_interfaces = qw(lo eth\d eth_m eth_q eth_ eth phy ap lan br-lan bond);
+
 # config of the real gadget data source
 my $uci_show_net = '/sbin/uci show network';
 my $proc_dir = '/proc';
 my $etc_dir  = '/etc';
+my $usr_snmp_dir = '/usr/local/share/snmp';
 
-# pseudo data source for dev env
+# pseudo data source for development environment
 unless ($on_target) {
   my $emulation_root = '.';
   $uci_show_net = "cat $emulation_root/uci/show/network";
   $proc_dir = "$emulation_root/proc";
   $etc_dir  = "$emulation_root/etc";
+  $etc_dir  = "$emulation_root/usr/local/share/snmp";
 }
 
 debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
@@ -80,6 +85,18 @@ my %proc_vlan_data;
 my @proc_dev_data;
 my @proc_arp_data;
 my %mib_out_cache;
+
+my %dump_def = (
+  uci  => [\%uci_net_data,  '%uci_net_data' ],
+
+  vlan => [\%proc_vlan_data , '%proc_vlan_data' ],
+  dev  => [\@proc_dev_data  , '@proc_dev_data' ],
+  arp  => [\@proc_arp_data  , '@proc_arp_data' ],
+  mib  => [\%mib_out_cache  , '%mib_out_cache' ],
+); 
+
+# print Dumper(\%dump_def);
+# exit;
 
 my $time_now = time;
 my $time_last; # = $time_now;
