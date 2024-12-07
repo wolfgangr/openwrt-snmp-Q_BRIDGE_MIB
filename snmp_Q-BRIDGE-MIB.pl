@@ -59,6 +59,8 @@ my $uci_show_net = '/sbin/uci show network';
 my $proc_dir = '/proc';
 my $etc_dir  = '/etc';
 my $usr_snmp_dir = '/usr/local/share/snmp';
+my @mib_tabs = qw ( tab_BRIDGE-MIB.raw  tab_Q-BRIDGE-MIB.raw);
+
 
 # pseudo data source for development environment
 unless ($on_target) {
@@ -66,7 +68,8 @@ unless ($on_target) {
   $uci_show_net = "cat $emulation_root/uci/show/network";
   $proc_dir = "$emulation_root/proc";
   $etc_dir  = "$emulation_root/etc";
-  $etc_dir  = "$emulation_root/usr/local/share/snmp";
+  $usr_snmp_dir  = "$emulation_root/usr/local/share/snmp";
+  
 }
 
 debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
@@ -85,14 +88,18 @@ my %proc_vlan_data;
 my @proc_dev_data;
 my @proc_arp_data;
 my %mib_out_cache;
+my @mib_tab;
+my @ports;
 
-my %dump_def = (  # pointer, label
+my %dump_def = (  # pointer, label   
   uci  => [\%uci_net_data,    '%uci_net_data' ],
   vlan => [\%proc_vlan_data , '%proc_vlan_data' ],
   dev  => [\@proc_dev_data  , '@proc_dev_data' ],
+  ports => [\@ports , '@ports'] ,
   arp  => [\@proc_arp_data  , '@proc_arp_data' ],
   mib  => [\%mib_out_cache  , '%mib_out_cache' ],
-); 
+  mibtab => [\@mib_tab , '@mib_tab'] , 
+);  #  => [\ , '  '] ,
 
 # print Dumper(\%dump_def);
 # exit;
@@ -188,7 +195,7 @@ sub load_data {
   load_proc_vlan();
   load_proc_dev();
   load_proc_arp();
-
+  load_mibtabs();
   debug(4, "... completed initial load_data() \n");
 }
 
@@ -197,6 +204,31 @@ sub check_data {
   load_uci_net() if 0;
   load_proc_vlan() if 0;
 }
+
+# ===== subs to build OID tree
+
+sub load_mibtabs {
+  debug(5, "     ... loading mibtabs ... \n");
+
+  for my $mt (@mib_tabs) {
+    my @mtrows = split "\n" , `cat $usr_snmp_dir/$mt`;
+    print "$#mtrows\n";
+    for my $ln (@mtrows) {
+      next if $ln =~ /^#/;
+      my ($oname, $onam2, $oid, $ot) = split '\s+', $ln;
+      push @mib_tab, {
+        OName => $oname, 
+        OID   => $oid,
+        OType => $ot,
+        source => $mt
+      };
+    }
+  }
+  # print Dumper(\@mib_tab);
+  # exit;
+}
+
+# ===== subs to retrieve system data
 
 # fill %uci_net_data;
 sub load_uci_net {
