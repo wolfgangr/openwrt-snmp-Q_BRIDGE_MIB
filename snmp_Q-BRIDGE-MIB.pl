@@ -86,9 +86,8 @@ my @proc_dev_data;
 my @proc_arp_data;
 my %mib_out_cache;
 
-my %dump_def = (
-  uci  => [\%uci_net_data,  '%uci_net_data' ],
-
+my %dump_def = (  # pointer, label
+  uci  => [\%uci_net_data,    '%uci_net_data' ],
   vlan => [\%proc_vlan_data , '%proc_vlan_data' ],
   dev  => [\@proc_dev_data  , '@proc_dev_data' ],
   arp  => [\@proc_arp_data  , '@proc_arp_data' ],
@@ -159,8 +158,9 @@ while (<>){   # ===============  main loop ==========================
     } else {
       # dumps as defined in %dump_def if key matches $1
       if (my $to_dump = $dump_def{$1}) {
-        debug(1, "dump of $$to_dump[1]:\n") ;
-        print STDERR "$$to_dump[1]: ", Dumper( $$to_dump[0]);
+        debug(5, "dump of $$to_dump[1]:\n") ;
+        # print STDERR "$$to_dump[1] = ", Dumper( $$to_dump[0]);
+        print STDERR Data::Dumper->Dump([ $$to_dump[0] ] , [ $$to_dump[1] ] );
 
       } else { 
         debug(1, "unknown dumper target: $1\n") ;
