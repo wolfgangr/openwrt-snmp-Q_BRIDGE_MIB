@@ -89,15 +89,17 @@ my @proc_dev_data;
 my @proc_arp_data;
 my %mib_out_cache;
 my @mib_tab;
-my @Cports;
-my @Sports;
+# my @Cports;
+# my @Sports;
+my %ifindex;
 
 my %dump_def = (  # pointer, label   
   uci  => [\%uci_net_data,    '%uci_net_data' ],
   vlan => [\%proc_vlan_data , '%proc_vlan_data' ],
   dev  => [\@proc_dev_data  , '@proc_dev_data' ],
-  cports => [\@Cports , '@Cports'] ,
-  sports => [\@Sports , '@Sports'] ,
+  # cports => [\@Cports , '@Cports'] ,
+  # sports => [\@Sports , '@Sports'] ,
+  index => [\%ifindex , '%ifindex'] ,
   arp  => [\@proc_arp_data  , '@proc_arp_data' ],
   mib  => [\%mib_out_cache  , '%mib_out_cache' ],
   mibtab => [\@mib_tab , '@mib_tab'] , 
@@ -198,6 +200,7 @@ sub load_data {
   load_proc_dev();
   load_proc_arp();
   load_mibtabs();
+  build_if_index_static();
   debug(4, "... completed initial load_data() \n");
 }
 
@@ -208,6 +211,36 @@ sub check_data {
 }
 
 # ===== subs to build OID tree
+# %ifindex
+sub build_if_index_static {
+  debug(5, "     ### TBD... indexing interfaces ... \n");
+  print Dumper(\%uci_net_data);
+
+  my %ports;
+  my %vlans;
+  while ( my ($k,$v) = each %uci_net_data) {
+     print "k: $k - class: $v->{class}  \n";
+     next unless ($v->{class} eq 'device') ;   # OSI layer 2 stuff only
+     print "device named $v->{name} made it \n";
+ 
+     if (($v->{type} // '') eq '8021q') {
+       unless (defined $v->{vid}) {
+         # next;
+         die "device $k: type 8021q without vlan ID\n" ;
+       }
+       $vlans{$v->{vid} } = $v ; # reindex by vid
+
+     } else {  # any device that's not a vlan is a port
+       $ports{$v->{name}} = $v ;
+     }
+  }  
+  $ifindex{vlans_static}  = \%vlans;
+  $ifindex{vlans_static_list} = [ sort keys %vlans  ];
+  $ifindex{ports_static} = \%ports;
+  print Dumper(\%ifindex);
+  die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
+  
+}
 
 sub load_mibtabs {
   debug(5, "     ... loading mibtabs ... \n");
