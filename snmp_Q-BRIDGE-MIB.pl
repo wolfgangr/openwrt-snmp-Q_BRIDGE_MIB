@@ -347,6 +347,20 @@ sub build_mib_tree {
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{value} = 99;
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{type} = 'Gauge32';
 
+
+
+    # dot1dBaseNumPorts                        1.3.6.1.2.1.17.1.2   
+    my $portlist = $ifindex{ports_static_avail};
+    $mib_out_cache{ '1.3.6.1.2.1.17.1.2.0'}->{value} = $#$portlist;
+    $mib_out_cache{ '1.3.6.1.2.1.17.1.2.0'}->{type} = 'INTEGER';
+
+  # dot1dBaseType                            1.3.6.1.2.1.17.1.3  
+  # dot1dBasePortTable                       1.3.6.1.2.1.17.1.4  
+  # dot1dBasePort                            1.3.6.1.2.1.17.1.4.1.1
+    for my $i (1 .. $#$portlist) {
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.1.$i"}->{value} = $i;
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.1.$i" }->{type} = 'INTEGER';
+    }
   # add static stuff
 
   # add dynamic stuff
