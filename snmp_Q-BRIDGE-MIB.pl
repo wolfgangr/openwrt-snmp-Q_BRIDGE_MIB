@@ -255,8 +255,10 @@ sub build_if_index_static {
 
        if ( $v->{proto} eq 'bonding') {
          my $bondname = 'bond-' . $dn;
-         $bonds{$bondname}->{proto}  = 'bonding';  
-         $bonds{$bondname}->{slaves} = $v->{slaves};
+         $bonds{$bondname}->{proto}   = 'bonding';  
+         $bonds{$bondname}->{slaves}  = $v->{slaves};
+         $bonds{$bondname}->{defname} = $dn;
+         $bonds{$bondname}->{ifname}  = $bondname;
          
        }
        # interface is collected, can we extract a vlan name from its def?
