@@ -296,27 +296,18 @@ sub build_mib_tree {
     # $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.4.0'}->{OType} = 'INTEGER';
 
   # sort and chain
-  # my $prev;
-  @mib_out_sort = sort keys %mib_out_cache;
-  my $next = ''; 
+  @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
+  my $next = ''; # marks end of populated tree 
   for my $k ( reverse @mib_out_sort ) {
-    # print '.';
-    # next unless $prev;
-    # print '|';
     my $m = $mib_out_cache{$k};
     $m->{OID} ||= $m->{def}->{OID}  || $k  || die "wtf";
-    
-    # next unless $prev;
     $m->{next} = $next;
-    if ( $m->{value}  ) {
-      # $prev->{next} = $m->{OID};
-      # printf "link from %s to %s\n", $prev->{OID}, $prev->{next};
+
+    if ( $m->{value}  ) {  # only populated oids are valid next targets
       $next = $m->{OID};
     }
-    
   }
 
-  # debug
   # print Dumper(\%mib_out_cache);
   # die "DEBUG ====================in build_mib_tree =~~~~~~~~~~~~~~~~~------------------"; 
 }
