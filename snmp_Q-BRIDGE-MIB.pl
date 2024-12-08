@@ -232,15 +232,21 @@ sub build_mib_tree {
   # sort and chain
   my $prev;
   for my $k (sort keys %mib_out_cache) {
+    # print '.';
+    # next unless $prev;
+    # print '|';
     my $m = $mib_out_cache{$k};
-    next unless $prev;
+    # next unless $prev;
+    if ($prev) {
       $prev->{next} = $m->{OID};
+      # printf "link from %s to %s\n", $prev->{OID}, $prev->{next};
+    }
     $prev = $m;
   }
 
   # debug
   print Dumper(\%mib_out_cache);
-  die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
+  die "DEBUG ====================in build_mib_tree =~~~~~~~~~~~~~~~~~------------------"; 
 }
 
 
