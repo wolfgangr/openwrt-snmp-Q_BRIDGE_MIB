@@ -217,7 +217,7 @@ sub check_data {
 # %ifindex
 sub build_if_index_static {
   debug(5, "     ### TBD... indexing interfaces ... \n");
-  print Dumper(\%uci_net_data);
+  # print Dumper(\%uci_net_data);
 
   # my %ports;
   my %vlans;
@@ -229,7 +229,7 @@ sub build_if_index_static {
   my %bonds;
 
   while ( my ($k,$v) = each %uci_net_data) {
-     print "k: $k - class: $v->{class}  \n";
+     # print "k: $k - class: $v->{class}  \n";
 
      if  ($v->{class} eq 'device') {
        if (($v->{type} // '') eq '8021q') {
@@ -291,8 +291,8 @@ sub build_if_index_static {
   $ifindex{ports_static_avail}=  [ uniq(@ports_available) ] ;  # \%ports;
   $ifindex{ports_static_used} = \%ports ;
 
-  print Dumper(\%ifindex);
-  die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
+  # print Dumper(\%ifindex);
+  # die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
   
 }
 
