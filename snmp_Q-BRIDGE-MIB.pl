@@ -204,6 +204,7 @@ sub load_data {
   load_proc_arp();
   load_mibtabs();
   build_if_index_static();
+  build_mib_tree();
   debug(4, "... completed initial load_data() \n");
 }
 
@@ -214,9 +215,21 @@ sub check_data {
 }
 
 # ===== subs to build OID tree
+
+# %mib_out_cache;
+sub build_mib_tree {
+  debug(5, "     ### TBD... indexing interfaces ... \n");
+
+  print Dumper(\%mib_out_cache);
+  die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
+}
+
+
+
+
 # %ifindex
 sub build_if_index_static {
-  debug(5, "     ### TBD... indexing interfaces ... \n");
+  debug(5, "     ... indexing static network configuration ... \n");
   # print Dumper(\%uci_net_data);
 
   # my %ports;
@@ -301,7 +314,8 @@ sub load_mibtabs {
 
   for my $mt (@mib_tabs) {
     my @mtrows = split "\n" , `cat $usr_snmp_dir/$mt`;
-    print "$#mtrows\n";
+    debug(5, sprintf ("          loaded %4s data rows from %s/%s \n" ,
+		 $#mtrows , $usr_snmp_dir, $mt)) ;
     for my $ln (@mtrows) {
       next if $ln =~ /^#/;
       my ($oname, $onam2, $oid, $ot) = split '\s+', $ln;
