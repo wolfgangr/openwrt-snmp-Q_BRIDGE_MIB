@@ -81,8 +81,8 @@ debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
 
 # my $counter = 0;
 # my $place = ".1.3.6.1.4.1.8072.2.255";
-my $mib_root = ".1.3.6.1.2.1.17.1.4.1.2";  ### BRIDGE-MIB
-
+# my $mib_root = ".1.3.6.1.2.1.17.1.4.1.2";  ### BRIDGE-MIB
+my $mib_root = "1.3.6.1.2.1.17"; ### BRIDGE-MIB, no leading dot
 
 # skript level globals to share with subs
 
@@ -124,15 +124,17 @@ $time_updated = $time_now ;
 while (<>){   # ===============  main loop ==========================
   $time_last = $time_now;
   $time_now = time;
-  debug(1, "# check // load data \n") ;
-  check_data(); # reload only if required
+  debug(6, "# check // load data \n") ;
+  # check_data(); # reload only if required
 
-  debug(5, sprintf "     \$time_now: %i; \$time_last: %i; passed: %i seconds  \n",
+  debug(6, sprintf "     \$time_now: %i; \$time_last: %i; passed: %i seconds  \n",
 	$time_now,  $time_last,  $time_now - $time_last  );
-  debug(5, sprintf "     \$time_now: %i; \$time_updated: %i; age of data: %i seconds  \n",
+  debug(6, sprintf "     \$time_now: %i; \$time_updated: %i; age of data: %i seconds  \n",
         $time_now,  $time_updated,  $time_now - $time_updated  );
 
 ####  check get and getnext normal operation cmds
+  $_ = lc($_);   # commands case insensitive
+  
   if (m!^get(next)?\s*$!){
     my $cmd = $_;
     my $req = <>;
@@ -155,7 +157,9 @@ while (<>){   # ===============  main loop ==========================
 
 #### debug cases below
 
-  if (m!^PING!){    # part of interface definition
+  
+
+  if (m!^ping!){    # part of interface definition
     print "PONG\n";
     next;
   }
@@ -263,8 +267,8 @@ sub build_mib_tree {
   }
 
   # debug
-  print Dumper(\%mib_out_cache);
-  die "DEBUG ====================in build_mib_tree =~~~~~~~~~~~~~~~~~------------------"; 
+  # print Dumper(\%mib_out_cache);
+  # die "DEBUG ====================in build_mib_tree =~~~~~~~~~~~~~~~~~------------------"; 
 }
 
 
