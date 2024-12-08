@@ -220,6 +220,17 @@ sub check_data {
 sub build_mib_tree {
   debug(5, "     ### TBD... indexing interfaces ... \n");
 
+  # instantiate from mibtab
+  for my $mtrow (@mib_tab) {
+    $mib_out_cache{ $mtrow->{OID} }->{def} = $mtrow;
+  }
+  # add static stuff
+
+  # add dynamic stuff
+
+  # sort and chain
+
+  # debug
   print Dumper(\%mib_out_cache);
   die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
 }
