@@ -169,7 +169,7 @@ while (<>){   # ===============  main loop ==========================
     exit;
   }
 
-  if (m!^dump (\S+)!){
+  if (m!^dump\s+(\S+)!){
     if ($on_target) {
       debug(1, "can't 'dump' - Dumper not available at target\n") ;
 
@@ -186,6 +186,12 @@ while (<>){   # ===============  main loop ==========================
     }
     next;
   }    
+
+  if (m!^canoid\s+(\S+)!){
+    print STDERR canonic_oid($1), "\n"; 
+    next;
+  }
+
   if (m!^print!){
     debug(1, "# print data in tab form\n") ;
     next;
@@ -217,6 +223,18 @@ sub check_data {
   load_uci_net() if 0;
   load_proc_vlan() if 0;
 }
+
+# remove leading dots and substitue @ by mib_root
+sub canonic_oid {
+  my $in = shift;
+  $in =~ s/^\.// ;  # remove leading dot
+  if ( $in =~ /^@\.?(\S+)/ ) {
+    return $mib_root . '.' . $1  ;
+  } else { 
+    return $in ;
+  }
+}
+
 
 # ===== subs to build OID tree
 
