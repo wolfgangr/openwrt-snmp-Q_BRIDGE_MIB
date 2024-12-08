@@ -52,9 +52,9 @@ unless ($on_target) {
 my $foo = 'bar';
 
 # grep patterns as first interface sorting criterion
-my @sort_interfaces = qw(lo eth\d eth_m eth_q eth_ eth phy ap lan br-lan bond);
+# my @sort_interfaces = qw(lo eth\d eth_m eth_q eth_ eth phy ap lan br-lan bond);
 # no clue how to autodetect "configured" interfaces
-my @hw_interfaces = qw(lo eth_mb eth_q0 eth_q1 eth_q2 eth_q3); #  bond-bond0 );
+my @hw_ports = qw(lo eth_mb eth_q0 eth_q1 eth_q2 eth_q3); #  bond-bond0 );
 
 
 # config of the real gadget data source
@@ -226,6 +226,7 @@ sub build_if_index_static {
   my %otherconf;
   my %vlan_names; # name => ID
   my %ports;    # counter of vlans per port
+  my %bonds;
 
   while ( my ($k,$v) = each %uci_net_data) {
      print "k: $k - class: $v->{class}  \n";
@@ -249,7 +250,15 @@ sub build_if_index_static {
        }
 
      } elsif  ($v->{class} eq 'interface') {
-       $interfaces{$v->{defname}} =$v;
+       my $dn = $v->{defname};
+       $interfaces{$dn} =$v;
+
+       if ( $v->{proto} eq 'bonding') {
+         my $bondname = 'bond-' . $dn;
+         $bonds{$bondname}->{proto}  = 'bonding';  
+         $bonds{$bondname}->{slaves} = $v->{slaves};
+         
+       }
        # interface is collected, can we extract a vlan name from its def?
        my $def_name = $v->{defname} or next;
        my $device   = $v->{device}  or next;
@@ -263,7 +272,10 @@ sub build_if_index_static {
      }
   }  
 
-  my @ports_available = @hw_interfaces; # dummy TBD hw + bonds + otherdevices + really used
+  # my @ports_available = @hw_interfaces; # dummy TBD hw + bonds + otherdevices + really used
+  my @ports_available = (@hw_ports, (sort keys %otherdevs), (sort keys %bonds), (sort keys %ports));
+
+
 
   $ifindex{vlans_static}      = \%vlans;
   $ifindex{vlans_static_byID} = [ sort keys %vlans  ];
