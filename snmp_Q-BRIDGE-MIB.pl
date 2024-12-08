@@ -137,6 +137,8 @@ while (<>){   # ===============  main loop ==========================
 ####  check get and getnext normal operation cmds
   $_ = lc($_);   # commands case insensitive
   
+  # demon interface as defined here:
+  # http://www.net-snmp.org/docs/man/snmpd.conf.html
   if (m!^get(next)?\s*$!){
     my $cmd = $_;
     my $req = <>;
@@ -144,17 +146,18 @@ while (<>){   # ===============  main loop ==========================
     chomp($cmd);
     chomp($req);
 
-    debug (5, "input: cmd= $cmd - req= $req...\n");
-
-    # if ( $cmd eq 'getnext' ) {
-    if ($1) {        # match group
-      debug (5, "     ### TBD: doing getnext\n");
+    debug (5, "doing get(next) - input: cmd= $cmd - req= $req\n");
+    my $ret = retrieve($req, $1); # oid, next
+    
+    if ($ret && $ret->{OID}  && $ret->{type} && $ret->{value}) {
+      #  OID for the result varbind, the TYPE and the VALUE itself 
+      print $ret->{OID} . "\n";
+      print $ret->{type} . "\n";
+      print $ret->{value} . "\n";
     } else {
-      debug (5, "     ### TBD: doing get\n");
-    }
-
-  debug (5, "    TBD: deliver some data\n");
-  next;
+      print "NONE\n";
+    }    
+    next;
   }
 
 #### debug cases below
