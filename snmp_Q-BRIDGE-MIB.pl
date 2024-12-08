@@ -209,17 +209,27 @@ while (<>){   # ===============  main loop ==========================
   # if (m!^list!){
   if (m!^(list|walk)\s*(\S+)?\s*(\S+)?\s*$!){
     debug(1, "# print data in tab form\n") ;
-    # my $cmd = $1;
+    my $cmd = $1;
     my $start = canonic_oid( $2 || '@' );
+    # my $end;
     my $end   = canonic_oid( $3 || '9z' ); # lecically larger than any number?
+    my ($i_max) = ( $3 =~ /^(\d+)/ );
+    if ($i_max) {  $end = '99z' ; }
 
     # find first entry, even if no match
     # my $first 
 
-    if ($1 eq 'list') {
+    printf ( '$cmd=%s; $start=%s; $end=%s; $i_max=%s;' . "\n\n", 
+	$cmd, $start, $end, $i_max) ;
+
+    if ($cmd eq 'list') {
+      my $i;
       for my $o (@mib_out_sort) {
         next if $o lt $start;
+        $i++;
+        last if ($i_max and ( $i > $i_max)) ;
         last if $end and  $o gt $end;
+
         my $oref = retrieve($o,0);
         die "wtf" unless defined $oref;
         print STDERR oid_line($oref) . "\n";
