@@ -288,7 +288,7 @@ sub build_if_index_static {
   $ifindex{stat_bonds}        = \%bonds;
 
   # ###TBD: can we autodetect static interfaces for any platform?
-  $ifindex{ports_static_avail}=  \@ports_available ;  # \%ports;
+  $ifindex{ports_static_avail}=  [ uniq(@ports_available) ] ;  # \%ports;
   $ifindex{ports_static_used} = \%ports ;
 
   print Dumper(\%ifindex);
@@ -498,5 +498,9 @@ sub debug {
   print STDERR 'DEBUG: ', $msg if $l <= $debug;
 }
 
-
+# http://stackoverflow.com/questions/7651/ddg#7657
+sub uniq {
+    my %seen;
+    grep !$seen{$_}++, @_;
+}
 
