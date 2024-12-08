@@ -195,27 +195,14 @@ while (<>){   # ===============  main loop ==========================
   }
 
   if (m!^raw(next)?\s+(\S+)\s*$!){
-    my $cid = canonic_oid($2) ;
-    my $ret =  $mib_out_cache{ $cid };
-    unless ( $ret) {
-      print STDERR "could not find entry for OID $cid \n";
-      next;
+    my $ret = retrieve($2, $1); # oid, next
+    if ($ret) {
+      print STDERR Dumper($ret);
+    } else {
+      printf STDERR "could not find%s entry for OID %s \n",
+		$1 ? ' next': '' ,  $2 ;
     }
-
-    if ($1) {
-      # $cid = $ret->{next};
-      $ret = $mib_out_cache{ $ret->{next} } ;
-      unless ( $ret) {
-        print STDERR "could not find next entry for OID $cid \n";
-        next;
-      }
-      # print STDERR Dumper($ret);
-      
-    }
-
-    print STDERR Dumper($ret);
     next;
-    # die "TBD $_";
   }
 
   if (m!^print!){
@@ -244,11 +231,16 @@ sub load_data {
   debug(4, "... completed initial load_data() \n");
 }
 
+
+
 sub check_data {
   debug(0, "### TBD check_data() \n");
   load_uci_net() if 0;
   load_proc_vlan() if 0;
 }
+
+# ====== helpers to select data =======
+
 
 # remove leading dots and substitue @ by mib_root
 sub canonic_oid {
@@ -259,6 +251,21 @@ sub canonic_oid {
   } else { 
     return $in ;
   }
+}
+
+
+# common selector for get / raw / rage ...
+# retrieve( $OID, $next) 
+sub retrieve {
+    # if (m!^raw(next)?\s+(\S+)\s*$!){
+    my ($oid, $next) = @_;
+    my $cid = canonic_oid($oid) ;
+    my $ret =  $mib_out_cache{ $cid };
+
+    if ($ret and  $next) {
+      $ret = $mib_out_cache{ $ret->{next} } ;
+    }
+    return $ret ;  # undef if not found
 }
 
 
