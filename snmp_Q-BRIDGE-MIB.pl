@@ -223,12 +223,20 @@ sub build_mib_tree {
   # instantiate from mibtab
   for my $mtrow (@mib_tab) {
     $mib_out_cache{ $mtrow->{OID} }->{def} = $mtrow;
+    $mib_out_cache{ $mtrow->{OID} }->{OID} = $mtrow->{OID};
   }
   # add static stuff
 
   # add dynamic stuff
 
   # sort and chain
+  my $prev;
+  for my $k (sort keys %mib_out_cache) {
+    my $m = $mib_out_cache{$k};
+    next unless $prev;
+      $prev->{next} = $m->{OID};
+    $prev = $m;
+  }
 
   # debug
   print Dumper(\%mib_out_cache);
