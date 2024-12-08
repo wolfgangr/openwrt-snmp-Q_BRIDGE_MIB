@@ -53,6 +53,9 @@ my $foo = 'bar';
 
 # grep patterns as first interface sorting criterion
 my @sort_interfaces = qw(lo eth\d eth_m eth_q eth_ eth phy ap lan br-lan bond);
+# no clue how to autodetect "configured" interfaces
+my @default_interfaces = qw(lo eth_mb eth_q0 eth_q1 eth_q2 eth_q3 bond-bond0 );
+
 
 # config of the real gadget data source
 my $uci_show_net = '/sbin/uci show network';
@@ -219,29 +222,40 @@ sub build_if_index_static {
   my %ports;
   my %vlans;
   my %otherdevs;
+  my %interfaces;
+  my %otherconf;
   while ( my ($k,$v) = each %uci_net_data) {
      print "k: $k - class: $v->{class}  \n";
      # next unless ($v->{class} eq 'device') ;   # OSI layer 2 stuff only
      # print "device named $v->{name} made it \n";
      if  ($v->{class} eq 'device') {
        if (($v->{type} // '') eq '8021q') {
-         unless (defined $v->{vid}) {
+         if (defined $v->{vid}) {
+           $vlans{$v->{vid} } = $v ; # reindex by vid
+         } else {
            # next;
            die "device $k: type 8021q without vlan ID\n" ;
          }
-         $vlans{$v->{vid} } = $v ; # reindex by vid
 
        } else {  
          $otherdevs{$v->{name}} =$v; # don't know yet what to do with that
        }
+     } elsif  ($v->{class} eq 'interface') {
+       $interfaces{$v->{defname}} =$v;
+     } else {
+       $otherconf{$v->{defname}} =$v;
      }
-       #  $ports{$v->{name}} = $v ;
-       # }
   }  
+
   $ifindex{vlans_static}      = \%vlans;
   $ifindex{vlans_static_byID} = [ sort keys %vlans  ];
-  $ifindex{stat_other_devs}   = \%%otherdevs
-  $ifindex{ports_static}      = \%ports;
+  $ifindex{stat_other_devs}   = \%otherdevs ;
+  $ifindex{stat_oconf}        = \%otherconf ;
+  $ifindex{stat_interfaces}   = \%interfaces;
+
+  # ###TBD: can we autodetect static interfaces for any platform?
+  $ifindex{ports_static}      =  \@default_interfaces ;  # \%ports;
+
   print Dumper(\%ifindex);
   die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
   
