@@ -134,10 +134,9 @@ while (<>){   # ===============  main loop ==========================
   debug(6, sprintf "     \$time_now: %i; \$time_updated: %i; age of data: %i seconds  \n",
         $time_now,  $time_updated,  $time_now - $time_updated  );
 
-####  check get and getnext normal operation cmds
   $_ = lc($_);   # commands case insensitive
   
-  # demon interface as defined here:
+  # get / getnext demon interface as defined here:
   # http://www.net-snmp.org/docs/man/snmpd.conf.html
   if (m!^get(next)?\s*$!){
     my $cmd = $_;
@@ -160,16 +159,16 @@ while (<>){   # ===============  main loop ==========================
     next;
   }
 
-#### debug cases below
-
-  
-
-  if (m!^ping!){    # part of interface definition
+  # PING/PONG is part of interface definition
+  if (m!^ping!){   
     print "PONG\n";
     next;
   }
 
-  if (m!^exit!){   # safe to keep in production?
+  
+  #### debug cases below
+  # cmd superset of defined interface - safe to keep in production?
+  if (m!^exit!){   
     print STDERR "- cancelled -\n";
     exit;
   }
@@ -179,10 +178,9 @@ while (<>){   # ===============  main loop ==========================
       debug(1, "can't 'dump' - Dumper not available at target\n") ;
 
     } else {
-      # dumps as defined in %dump_def if key matches $1
+      # dumps internal variables as defined in %dump_def if key matches $1
       if (my $to_dump = $dump_def{$1}) {
         debug(5, "dump of $$to_dump[1]:\n") ;
-        # print STDERR "$$to_dump[1] = ", Dumper( $$to_dump[0]);
         print STDERR Data::Dumper->Dump([ $$to_dump[0] ] , [ $$to_dump[1] ] );
 
       } else { 
@@ -215,9 +213,7 @@ while (<>){   # ===============  main loop ==========================
 
   debug(0, "end of main loop - cannot recognize command $_ \n") ;
 
-
 } # === end of main loop ===========
-
 
 die "   ===== DEBUG exit or error? ===== ";
 # =============== subs ========================================================
