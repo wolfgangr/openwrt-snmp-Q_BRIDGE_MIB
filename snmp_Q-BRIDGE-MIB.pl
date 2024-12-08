@@ -228,17 +228,17 @@ sub build_mib_tree {
 
   # add constant stuff
     $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{value} = $MAC;
-    $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{OType} = 'Hex-STRING'; 
+    $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{type} = 'Hex-STRING'; 
 		#  dot1qVlanVersionNumber
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.1.0'}->{value} = 1; 
-    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.1.0'}->{OType} = 'INTEGER'; 
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.1.0'}->{type} = 'INTEGER'; 
 		# dot1qMaxVlanId
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.2.0'}->{value} = 4093; 
-    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.2.0'}->{OType} = 'INTEGER'; 
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.2.0'}->{type} = 'INTEGER'; 
 
 		# dot1qMaxSupportedVlans
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{value} = 99;
-    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{OType} = 'Gauge32';
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{type} = 'Gauge32';
 
   # add static stuff
 
