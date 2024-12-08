@@ -283,6 +283,7 @@ sub build_if_index_static {
   $ifindex{stat_other_devs}   = \%otherdevs ;
   $ifindex{stat_oconf}        = \%otherconf ;
   $ifindex{stat_interfaces}   = \%interfaces;
+  $ifindex{stat_bonds}        = \%bonds;
 
   # ###TBD: can we autodetect static interfaces for any platform?
   $ifindex{ports_static_avail}=  \@ports_available ;  # \%ports;
