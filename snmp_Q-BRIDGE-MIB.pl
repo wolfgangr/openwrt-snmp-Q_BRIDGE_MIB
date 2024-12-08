@@ -215,12 +215,12 @@ while (<>){   # ===============  main loop ==========================
     my $end   = canonic_oid( $3 || '9z' ); # lecically larger than any number?
     my ($i_max) = ( $3 =~ /^(\d+)/ );
     if ($i_max) {  $end = '99z' ; }
-
+    
     # find first entry, even if no match
     # my $first 
 
-    printf ( '$cmd=%s; $start=%s; $end=%s; $i_max=%s;' . "\n\n", 
-	$cmd, $start, $end, $i_max) ;
+    # printf ( '$cmd=%s; $start=%s; $end=%s; $i_max=%s;' . "\n\n", 
+    #	$cmd, $start, $end, $i_max) ;
 
     if ($cmd eq 'list') {
       my $i;
@@ -234,8 +234,20 @@ while (<>){   # ===============  main loop ==========================
         die "wtf" unless defined $oref;
         print STDERR oid_line($oref) . "\n";
       }  
-    } else {
-      die "TBD";
+    } else { # $cmd eq 'walk'
+      my $oref = retrieve($start, 0) // retrieve($start, 1);
+      # $oref = retrieve($start, 1) unless de$oref;
+      my $i;
+      while (defined $oref) {
+        $i++;
+        last if ($i_max and ( $i > $i_max)) ;
+        print STDERR oid_line($oref) . "\n";
+        my $nxt = $oref->{next};
+        last if $nxt gt $end;
+        $oref = retrieve($nxt, 0)
+      }
+      #   print STDERR "cannot find entry for start oid $start\n";
+      
     } 
 
     next;
