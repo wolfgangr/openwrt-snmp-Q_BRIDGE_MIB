@@ -91,6 +91,7 @@ my %proc_vlan_data;
 my @proc_dev_data;
 my @proc_arp_data;
 my %mib_out_cache;
+my @mib_out_sort;
 my @mib_tab;
 # my @Cports;
 # my @Sports;
@@ -105,6 +106,7 @@ my %dump_def = (  # pointer, label
   index => [\%ifindex , '%ifindex'] ,
   arp  => [\@proc_arp_data  , '@proc_arp_data' ],
   mib  => [\%mib_out_cache  , '%mib_out_cache' ],
+  mibsort  => [\@mib_out_sort , '@mib_out_sort'] ,
   mibtab => [\@mib_tab , '@mib_tab'] , 
 );  #  => [\ , '  '] ,
 
@@ -294,18 +296,24 @@ sub build_mib_tree {
     # $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.4.0'}->{OType} = 'INTEGER';
 
   # sort and chain
-  my $prev;
-  for my $k (sort keys %mib_out_cache) {
+  # my $prev;
+  @mib_out_sort = sort keys %mib_out_cache;
+  my $next = ''; 
+  for my $k ( reverse @mib_out_sort ) {
     # print '.';
     # next unless $prev;
     # print '|';
     my $m = $mib_out_cache{$k};
+    $m->{OID} ||= $m->{def}->{OID}  || $k  || die "wtf";
+    
     # next unless $prev;
-    if ($prev) {
-      $prev->{next} = $m->{OID};
+    $m->{next} = $next;
+    if ( $m->{value}  ) {
+      # $prev->{next} = $m->{OID};
       # printf "link from %s to %s\n", $prev->{OID}, $prev->{next};
+      $next = $m->{OID};
     }
-    $prev = $m;
+    
   }
 
   # debug
