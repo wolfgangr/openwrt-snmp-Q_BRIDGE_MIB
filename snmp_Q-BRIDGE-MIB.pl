@@ -239,6 +239,11 @@ sub build_if_index_static {
            die "device $k: type 8021q without vlan ID\n" ;
          }
 
+         if (defined (my $port = $v->{ifname}) ) {
+           # $ports{$port}->{vl_ifs}++; # count vlans on port
+           $ports{$port}->{vl_devices}++
+         }
+
        } else {  
          $otherdevs{$v->{name}} =$v; # don't know yet what to do with that
        }
@@ -250,7 +255,7 @@ sub build_if_index_static {
        my $device   = $v->{device}  or next;
        my ( $port, $vid ) = ( $device =~ /^([^\.]+)\.(\d+)$/ )  ;
        ($port and defined $vid) or next;
-       $ports{$port}++; # count vlans on port
+       $ports{$port}->{vl_interfaces}++; # count vlans on port
        $vlan_names{$def_name} = $vid;
 
      } else { # neither device nor interface, e.g. globals
@@ -258,7 +263,7 @@ sub build_if_index_static {
      }
   }  
 
-  my @default_interfaces = @hw_interfaces; # dummy TBD hw + bonds + otherdevices + really used
+  my @ports_available = @hw_interfaces; # dummy TBD hw + bonds + otherdevices + really used
 
   $ifindex{vlans_static}      = \%vlans;
   $ifindex{vlans_static_byID} = [ sort keys %vlans  ];
@@ -268,7 +273,7 @@ sub build_if_index_static {
   $ifindex{stat_interfaces}   = \%interfaces;
 
   # ###TBD: can we autodetect static interfaces for any platform?
-  $ifindex{ports_static_avail}=  \@default_interfaces ;  # \%ports;
+  $ifindex{ports_static_avail}=  \@ports_available ;  # \%ports;
   $ifindex{ports_static_used} = \%ports ;
 
   print Dumper(\%ifindex);
