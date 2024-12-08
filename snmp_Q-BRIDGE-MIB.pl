@@ -206,8 +206,28 @@ while (<>){   # ===============  main loop ==========================
     next;
   }
 
-  if (m!^print!){
+  # if (m!^list!){
+  if (m!^(list|walk)\s*(\S+)?\s*(\S+)?\s*$!){
     debug(1, "# print data in tab form\n") ;
+    # my $cmd = $1;
+    my $start = canonic_oid( $2 || '@' );
+    my $end   = canonic_oid( $3 || '9z' ); # lecically larger than any number?
+
+    # find first entry, even if no match
+    # my $first 
+
+    if ($1 eq 'list') {
+      for my $o (@mib_out_sort) {
+        next if $o lt $start;
+        last if $end and  $o gt $end;
+        my $oref = retrieve($o,0);
+        die "wtf" unless defined $oref;
+        print STDERR oid_line($oref) . "\n";
+      }  
+    } else {
+      die "TBD";
+    } 
+
     next;
   }
 
@@ -267,6 +287,17 @@ sub retrieve {
     return $ret ;  # undef if not found
 }
 
+sub oid_line {
+  my $oref = shift;
+  return  '--# UNDEF # --' unless defined $oref ;
+
+  return sprintf ('%-40s %-35s %20s  %s',
+    $oref->{def}->{OName} // ' -',   
+    $oref->{OID} // $oref->{def}->{OID} // '?????',
+    $oref->{type} // '# n/a',
+    $oref->{value} // '# n/a'
+  )
+}
 
 # ===== subs to build OID tree
 
