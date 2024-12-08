@@ -218,25 +218,30 @@ sub build_if_index_static {
 
   my %ports;
   my %vlans;
+  my %otherdevs;
   while ( my ($k,$v) = each %uci_net_data) {
      print "k: $k - class: $v->{class}  \n";
-     next unless ($v->{class} eq 'device') ;   # OSI layer 2 stuff only
-     print "device named $v->{name} made it \n";
- 
-     if (($v->{type} // '') eq '8021q') {
-       unless (defined $v->{vid}) {
-         # next;
-         die "device $k: type 8021q without vlan ID\n" ;
-       }
-       $vlans{$v->{vid} } = $v ; # reindex by vid
+     # next unless ($v->{class} eq 'device') ;   # OSI layer 2 stuff only
+     # print "device named $v->{name} made it \n";
+     if  ($v->{class} eq 'device') {
+       if (($v->{type} // '') eq '8021q') {
+         unless (defined $v->{vid}) {
+           # next;
+           die "device $k: type 8021q without vlan ID\n" ;
+         }
+         $vlans{$v->{vid} } = $v ; # reindex by vid
 
-     } else {  # any device that's not a vlan is a port
-       $ports{$v->{name}} = $v ;
+       } else {  
+         $otherdevs{$v->{name}} =$v; # don't know yet what to do with that
+       }
      }
+       #  $ports{$v->{name}} = $v ;
+       # }
   }  
-  $ifindex{vlans_static}  = \%vlans;
-  $ifindex{vlans_static_list} = [ sort keys %vlans  ];
-  $ifindex{ports_static} = \%ports;
+  $ifindex{vlans_static}      = \%vlans;
+  $ifindex{vlans_static_byID} = [ sort keys %vlans  ];
+  $ifindex{stat_other_devs}   = \%%otherdevs
+  $ifindex{ports_static}      = \%ports;
   print Dumper(\%ifindex);
   die "DEBUG ====================in ifindex =~~~~~~~~~~~~~~~~~------------------"; 
   
