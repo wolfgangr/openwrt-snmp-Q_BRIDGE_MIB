@@ -55,7 +55,7 @@ my $foo = 'bar';
 # my @sort_interfaces = qw(lo eth\d eth_m eth_q eth_ eth phy ap lan br-lan bond);
 # no clue how to autodetect "configured" interfaces
 my @hw_ports = qw(lo eth_mb eth_q0 eth_q1 eth_q2 eth_q3); #  bond-bond0 );
-
+my $MAC = '90 1B 0E 40 B5 23';  # 90:1B:0E:40:B5:23
 
 # config of the real gadget data source
 my $uci_show_net = '/sbin/uci show network';
@@ -225,9 +225,27 @@ sub build_mib_tree {
     $mib_out_cache{ $mtrow->{OID} }->{def} = $mtrow;
     $mib_out_cache{ $mtrow->{OID} }->{OID} = $mtrow->{OID};
   }
+
+  # add constant stuff
+    $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{value} = $MAC;
+    $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{OType} = 'Hex-STRING'; 
+		#  dot1qVlanVersionNumber
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.1.0'}->{value} = 1; 
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.1.0'}->{OType} = 'INTEGER'; 
+		# dot1qMaxVlanId
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.2.0'}->{value} = 4093; 
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.2.0'}->{OType} = 'INTEGER'; 
+
+		# dot1qMaxSupportedVlans
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{value} = 99;
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{OType} = 'Gauge32';
+
   # add static stuff
 
   # add dynamic stuff
+		# dot1qNumVlans
+    # $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.4.0'}->{value} = 4093;
+    # $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.4.0'}->{OType} = 'INTEGER';
 
   # sort and chain
   my $prev;
