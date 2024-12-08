@@ -187,9 +187,33 @@ while (<>){   # ===============  main loop ==========================
     next;
   }    
 
-  if (m!^canoid\s+(\S+)!){
+  if (m!^canoid\s+(\S+)\s*$!){
     print STDERR canonic_oid($1), "\n"; 
     next;
+  }
+
+  if (m!^raw(next)?\s+(\S+)\s*$!){
+    my $cid = canonic_oid($2) ;
+    my $ret =  $mib_out_cache{ $cid };
+    unless ( $ret) {
+      print STDERR "could not find entry for OID $cid \n";
+      next;
+    }
+
+    if ($1) {
+      # $cid = $ret->{next};
+      $ret = $mib_out_cache{ $ret->{next} } ;
+      unless ( $ret) {
+        print STDERR "could not find next entry for OID $cid \n";
+        next;
+      }
+      # print STDERR Dumper($ret);
+      
+    }
+
+    print STDERR Dumper($ret);
+    next;
+    # die "TBD $_";
   }
 
   if (m!^print!){
@@ -228,8 +252,8 @@ sub check_data {
 sub canonic_oid {
   my $in = shift;
   $in =~ s/^\.// ;  # remove leading dot
-  if ( $in =~ /^@\.?(\S+)/ ) {
-    return $mib_root . '.' . $1  ;
+  if ( $in =~ /^@\.?(\S*)/ ) {
+    return $mib_root . ($1 ? ".$1" : '')  ;
   } else { 
     return $in ;
   }
