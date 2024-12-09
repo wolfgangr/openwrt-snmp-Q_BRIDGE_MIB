@@ -59,6 +59,7 @@ my $MAC = '90 1B 0E 40 B5 23';  # 90:1B:0E:40:B5:23
 
 # config of the real gadget data source
 my $uci_show_net = '/sbin/uci show network';
+my $ip_link_list = '/sbin/ip link list';
 my $proc_dir = '/proc';
 my $etc_dir  = '/etc';
 my $usr_snmp_dir = '/usr/local/share/snmp';
@@ -69,6 +70,7 @@ my @mib_tabs = qw ( tab_BRIDGE-MIB.raw  tab_Q-BRIDGE-MIB.raw);
 unless ($on_target) {
   my $emulation_root = '.';
   $uci_show_net = "cat $emulation_root/uci/show/network";
+  $ip_link_list = "cat $emulation_root/ip/link";
   $proc_dir = "$emulation_root/proc";
   $etc_dir  = "$emulation_root/etc";
   $usr_snmp_dir  = "$emulation_root/usr/local/share/snmp";
@@ -78,40 +80,32 @@ unless ($on_target) {
 debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
 	$uci_show_net, $proc_dir, $etc_dir ));
 
-
-# my $counter = 0;
-# my $place = ".1.3.6.1.4.1.8072.2.255";
-# my $mib_root = ".1.3.6.1.2.1.17.1.4.1.2";  ### BRIDGE-MIB
 my $mib_root = "1.3.6.1.2.1.17"; ### BRIDGE-MIB, no leading dot
 
 # skript level globals to share with subs
 
 my %uci_net_data;
+my %ip_link_data;
 my %proc_vlan_data;
 my @proc_dev_data;
 my @proc_arp_data;
 my %mib_out_cache;
 my @mib_out_sort;
 my @mib_tab;
-# my @Cports;
-# my @Sports;
 my %ifindex;
 
 my %dump_def = (  # pointer, label   
-  uci  => [\%uci_net_data,    '%uci_net_data' ],
-  vlan => [\%proc_vlan_data , '%proc_vlan_data' ],
-  dev  => [\@proc_dev_data  , '@proc_dev_data' ],
-  # cports => [\@Cports , '@Cports'] ,
-  # sports => [\@Sports , '@Sports'] ,
-  index => [\%ifindex , '%ifindex'] ,
-  arp  => [\@proc_arp_data  , '@proc_arp_data' ],
-  mib  => [\%mib_out_cache  , '%mib_out_cache' ],
-  mibsort  => [\@mib_out_sort , '@mib_out_sort'] ,
-  mibtab => [\@mib_tab , '@mib_tab'] , 
+  uci    => [\%uci_net_data,    '%uci_net_data'   ],
+  iplink => [\%ip_link_data ,   '%ip_link_data'   ],
+  vlan   => [\%proc_vlan_data , '%proc_vlan_data' ],
+  dev    => [\@proc_dev_data  , '@proc_dev_data'  ],
+  index  => [\%ifindex ,        '%ifindex'        ],
+  arp    => [\@proc_arp_data  , '@proc_arp_data'  ],
+  mib    => [\%mib_out_cache  , '%mib_out_cache'  ],
+  mibsort  => [\@mib_out_sort,  '@mib_out_sort'   ],
+  mibtab   => [\@mib_tab ,      '@mib_tab'        ] 
 );  #  => [\ , '  '] ,
 
-# print Dumper(\%dump_def);
-# exit;
 
 my $time_now = time;
 my $time_last; # = $time_now;
@@ -263,6 +257,7 @@ die "   ===== DEBUG exit or error? ===== ";
 sub load_data {
   debug(3, "perform initial load_data() ... \n");
   load_uci_net();
+  load_ip_link();
   load_proc_vlan();
   load_proc_dev();
   load_proc_arp();
@@ -357,9 +352,13 @@ sub build_mib_tree {
   # dot1dBaseType                            1.3.6.1.2.1.17.1.3  
   # dot1dBasePortTable                       1.3.6.1.2.1.17.1.4  
   # dot1dBasePort                            1.3.6.1.2.1.17.1.4.1.1
-    for my $i (1 .. $#$portlist) {
+    for my $i (1 .. ($#$portlist +1)) {
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.1.$i"}->{value} = $i;
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.1.$i" }->{type} = 'INTEGER';
+
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.2.$i"}->{value} = $i;
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.2.$i" }->{type} = 'INTEGER';
+
     }
   # add static stuff
 
@@ -493,6 +492,22 @@ sub load_mibtabs {
 }
 
 # ===== subs to retrieve system data
+
+
+# fill %ip_link_data
+sub load_ip_link {
+  debug(5, "     ... loading load_ip_link() ... \n");
+  my @ip_raw = split "\n" , `$ip_link_list`;
+  die "executing $ip_link_list delivered empty result\n" unless scalar @ip_raw;
+
+  my $link; # keep track of current blocks over multiple lines
+  for my $l (@ip_raw) {
+    print $l; 
+  }
+  print Dumper(\%ip_link_data);
+  exit;
+}
+
 
 # fill %uci_net_data;
 sub load_uci_net {
