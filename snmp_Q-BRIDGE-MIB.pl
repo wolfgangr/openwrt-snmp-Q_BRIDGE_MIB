@@ -445,12 +445,12 @@ sub build_mib_tree {
 	# dot1qTpFdbPort  
 	#   1.3.6.1.2.1.17.7.1.2.2.1.2 vlID ##:## :##:## :##:##
 	# iso.3.6.1.2.1.17.7.1.2.2.1.2.4066.40.128.35.154.89.64 = INTEGER: 29
-        print '$dot1qTpFdbPort{$vlid}->{$mac}: ', Dumper (\%{$dot1qTpFdbPort{$vlid}->{$mac}});
+        # print '$dot1qTpFdbPort{$vlid}->{$mac}: ', Dumper (\%{$dot1qTpFdbPort{$vlid}->{$mac}});
         my @l = keys %{$dot1qTpFdbPort{$vlid}->{$mac}};
-        printf "keys %s\n", join '|',  keys %{$dot1qTpFdbPort{$vlid}->{$mac}} ;
+        # printf "keys %s\n", join '|',  keys %{$dot1qTpFdbPort{$vlid}->{$mac}} ;
         my $bondname = shift @l;
         my $port_index = $dev_byname{$bondname};
-        printf "shift %s\n", $bondname;
+        # printf "shift %s\n", $bondname;
         $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.2.${vlid}${m_oid}"}->{value} = $port_index; 
 		# shift (keys %{$dot1qTpFdbPort{$vlid}->{$mac}}) ;
         $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.2.${vlid}${m_oid}"}->{type} = 'INTEGER'; 
@@ -463,6 +463,38 @@ sub build_mib_tree {
 
       }
     }
+
+# dot1qVlan	1.3.6.1.2.1.17.7.1.4    
+	# not implemented:
+	# dot1qVlanTimeMark      1.3.6.1.2.1.17.7.1.4.2.1.1
+	# dot1qVlanFdbId         1.3.6.1.2.1.17.7.1.4.2.1.3
+	# dot1qVlanCreationTime  1.3.6.1.2.1.17.7.1.4.2.1.7
+
+	## 'vlans_static_byID'
+  # print Dumper (\%ifindex);
+  for my $vlanID (@{$ifindex{vlans_static_byID}}) {
+    # print $vlanID;
+    # dot1qVlanIndex 1.3.6.1.2.1.17.7.1.4.2.1.2
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.2.1.${vlanID}"}->{value} = ${vlanID};
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.2.1.${vlanID}"}->{type} = 'INTEGER';
+    # dot1qVlanStatus ...6.1.2.1.17.7.1.4.2.1.6
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.6.1.${vlanID}"}->{value} = 2;
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.6.1.${vlanID}"}->{type} = 'INTEGER';
+
+    
+    my @ports = @{$ifindex{ports_static_avail}};
+    for my $pi (0 .. $#ports) {
+      # printf "  no:%d -> %s", $pi+1, $ports[$pi];
+	##'ports_static_avail'
+
+	# dot1qVlanCurrentEgressPorts  1.3.6.1.2.1.17.7.1.4.2.1.4
+	# 				iso.3.6.1.2.1.17.7.1.4.2.1.4.1.1 = Hex-STRING: FF FF FC 60 00 
+	# dot1qVlanCurrentUntaggedPorts	1.3.6.1.2.1.17.7.1.4.2.1.5
+	# 	1.3.6.1.2.1.17.7.1.4.2.1.5.1.*
+     }
+     # print "\n";
+  }
+  # die "cutting edge =================~~~~~~-----------------";
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
   @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
