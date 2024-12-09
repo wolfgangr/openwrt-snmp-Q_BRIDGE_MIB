@@ -56,6 +56,8 @@ my $foo = 'bar';
 # no clue how to autodetect "configured" interfaces
 my @hw_ports = qw(lo eth_mb eth_q0 eth_q1 eth_q2 eth_q3); #  bond-bond0 );
 my $MAC = '90 1B 0E 40 B5 23';  # 90:1B:0E:40:B5:23
+# my $portmap = 0xffff; # sufficient bits or all ports to fit 
+# my $portmap_bits = 16 ; # number of bits for binary mapping, 
 
 # config of the real gadget data source
 my $uci_show_net = '/sbin/uci show network';
@@ -464,16 +466,14 @@ sub build_mib_tree {
       }
     }
 
-# dot1qVlan	1.3.6.1.2.1.17.7.1.4    
-	# not implemented:
-	# dot1qVlanTimeMark      1.3.6.1.2.1.17.7.1.4.2.1.1
-	# dot1qVlanFdbId         1.3.6.1.2.1.17.7.1.4.2.1.3
-	# dot1qVlanCreationTime  1.3.6.1.2.1.17.7.1.4.2.1.7
-
-	## 'vlans_static_byID'
-  # print Dumper (\%ifindex);
+  # dot1qVlan	1.3.6.1.2.1.17.7.1.4    
+    # not implemented:
+    # - dot1qVlanTimeMark      1.3.6.1.2.1.17.7.1.4.2.1.1
+    # - dot1qVlanFdbId         1.3.6.1.2.1.17.7.1.4.2.1.3
+    # - dot1qVlanCreationTime  1.3.6.1.2.1.17.7.1.4.2.1.7
+    # - untagged ports (always shown as 000)
+ 
   for my $vlanID (@{$ifindex{vlans_static_byID}}) {
-    # print $vlanID;
     # dot1qVlanIndex 1.3.6.1.2.1.17.7.1.4.2.1.2
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.2.1.${vlanID}"}->{value} = ${vlanID};
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.2.1.${vlanID}"}->{type} = 'INTEGER';
@@ -483,16 +483,37 @@ sub build_mib_tree {
 
     
     my @ports = @{$ifindex{ports_static_avail}};
-    for my $pi (0 .. $#ports) {
-      # printf "  no:%d -> %s", $pi+1, $ports[$pi];
-	##'ports_static_avail'
 
-	# dot1qVlanCurrentEgressPorts  1.3.6.1.2.1.17.7.1.4.2.1.4
-	# 				iso.3.6.1.2.1.17.7.1.4.2.1.4.1.1 = Hex-STRING: FF FF FC 60 00 
-	# dot1qVlanCurrentUntaggedPorts	1.3.6.1.2.1.17.7.1.4.2.1.5
-	# 	1.3.6.1.2.1.17.7.1.4.2.1.5.1.*
-     }
-     # print "\n";
+    # my $portmap_bits = (int((scalar @ports)  / 8)) * 8 + 8; 
+    my $portmap_bytes = (int((scalar @ports) /8 )) +1;
+    # my $portmap_bits = $portmap_bytes *8
+
+    my $portmask = 1 << ($portmap_bytes * 8) ;
+    my $egress   = 0;
+    my $untagged = 0;
+
+    # print $portmask;
+    for my $pi (0 .. $#ports) {
+      $portmask >>= 1;
+      $egress |= $portmask;
+      die " defined portmap too short" unless $portmask;
+      
+      # printf "  no:%d -> %s", $pi+1, $ports[$pi];
+      # $portmask >>= 1;
+    }
+
+    # dot1qVlanCurrentEgressPorts  1.3.6.1.2.1.17.7.1.4.2.1.4
+    #              iso.3.6.1.2.1.17.7.1.4.2.1.4.1.1 = Hex-STRING: FF FF FC 60 00 
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{value} = format_hex_groups($egress, $portmap_bytes);
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{type} = 'Hex-STRING';
+
+    # dot1qVlanCurrentUntaggedPorts	1.3.6.1.2.1.17.7.1.4.2.1.5
+    #                1.3.6.1.2.1.17.7.1.4.2.1.5.1.*
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{type} = 'Hex-STRING';     
+    # format_hex_groups(number, bytes, ['spacer'] );
+
+    # printf " vlan ID: %d, egress: %X \n" , $vlanID, $egress ;
   }
   # die "cutting edge =================~~~~~~-----------------";
 
@@ -846,3 +867,18 @@ sub uniq {
     grep !$seen{$_}++, @_;
 }
 
+# convert hex strings in specific length
+# pattern e.g. 00 12 ff3B 00 as seen on hp
+# format_hex_groups(number, bytes, ['spacer'] );
+sub format_hex_groups {
+  my ($num, $bytes, $spc) = @_;
+  $num //= 0;
+  $bytes //= 1;
+  $spc //= ' ';
+  my @chunks;
+  while ($bytes--) {
+    unshift @chunks, sprintf("%02X", $num & 0xff);
+    $num /= 0x100;
+  }
+  return join $spc,  @chunks;
+}
