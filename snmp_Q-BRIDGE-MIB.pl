@@ -379,8 +379,9 @@ sub build_mib_tree {
 
     my %dev_byname  = map { $$portlist[$_ -1],  $_ }   (1 .. ($#$portlist +1));
     my %fdb;          # for dot1d 
-    my %fdb_q_byMAC;  # for dot1q   
+    # my %fdb_q_byMAC;  # for dot1q   
     my %fdb_q_byvlid; 
+    my %dot1qTpFdbPort;
 
     for  my $fde (@proc_arp_data) {
       my $device = $fde->{Device};
@@ -389,8 +390,9 @@ sub build_mib_tree {
       my $mac = $fde->{'HW address'};
       $fdb{$mac}->{$port}++;      # for dot1d - by physical port
       if ($vlid ne '') {
-        $fdb_q_byMAC{$mac}->{$vlid}++;    # for dot1q - by vlan id
+        # $fdb_q_byMAC{$mac}->{$vlid}++;    # for dot1q - by vlan id
         $fdb_q_byvlid{$vlid}->{$mac}++;
+        $dot1qTpFdbPort{$vlid}->{$mac}->{$port}++;
       }
     }
 
@@ -410,8 +412,10 @@ sub build_mib_tree {
         $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.2$mac_snmp_suboid"}->{type} = 'INTEGER';
       }
     }
-    print Dumper (\%fdb);
-    print Dumper (\%fdb_q_byMAC, \%fdb_q_byvlid);
+    # print Dumper (\%fdb);
+    # print Dumper (\%fdb_q_byMAC, \%fdb_q_byvlid);
+    # print Dumper (\%fdb_q_byvlid);
+    # print Dumper (\%dot1qTpFdbPort);
     # die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
 
 	# dot1dTpPortTable                         1.3.6.1.2.1.17.4.4
@@ -434,14 +438,26 @@ sub build_mib_tree {
         # iso.3.6.1.2.1.17.7.1.2.1.1.2.4066 = Counter32: 4
       $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$vlid"}->{value} = scalar keys %$maclist;
       $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$vlid"}->{type}  = 'Counter32';
-      while ( my ($mac, $cnt) = each %$maclist) { ; }
+      while ( my ($mac, $cnt) = each %$maclist) { 
+        my @mac_bytes = split ':', $mac;
+        # my $mac_snmp_str = join ' ' , @mac_bytes;
+        my $m_oid = join '' , map { '.' . hex($_)  } @mac_bytes;
 	# dot1qTpFdbPort  
 	#   1.3.6.1.2.1.17.7.1.2.2.1.2 vlID ##:## :##:## :##:##
 	# iso.3.6.1.2.1.17.7.1.2.2.1.2.4066.40.128.35.154.89.64 = INTEGER: 29
-
+        print '$dot1qTpFdbPort{$vlid}->{$mac}: ', Dumper (\%{$dot1qTpFdbPort{$vlid}->{$mac}});
+        my @l = keys %{$dot1qTpFdbPort{$vlid}->{$mac}};
+        printf "keys %s\n", join '|',  keys %{$dot1qTpFdbPort{$vlid}->{$mac}} ;
+        my $bondname = shift @l;
+        my $port_index = $dev_byname{$bondname};
+        printf "shift %s\n", $bondname;
+        $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.2.${vlid}${m_oid}"}->{value} = $port_index; # shift @l ;
+		# shift (keys %{$dot1qTpFdbPort{$vlid}->{$mac}}) ;
+        $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.2.${vlid}${m_oid}"}->{type} = 'INTEGER'; 
 	# dot1qTpFdbStatus 
 	#   1.3.6.1.2.1.17.7.1.2.2.1.3 V # #  #   #  #  #
 	# iso.3.6.1.2.1.17.7.1.2.2.1.3.1.0.21.187.18.46.82 = INTEGER: 3
+      }
     }
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
