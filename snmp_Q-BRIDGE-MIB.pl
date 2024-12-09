@@ -374,7 +374,7 @@ sub build_mib_tree {
 	# dot1dTpFdbEntry                          1.3.6.1.2.1.17.4.3.1 
 	# dot1dTpFdbAddress                        1.3.6.1.2.1.17.4.3.1.1 
 	# dot1dTpFdbPort                           1.3.6.1.2.1.17.4.3.1.2 
-		# data source: $@proc_arp_data
+		#  all boils down to data source: $@proc_arp_data
     # we need a reverse index: mac -> seen port
     my %dev_byname  = map { $$portlist[$_ -1],  $_ }   (1 .. ($#$portlist +1));
     # print Dumper (\%dev_byname);
@@ -393,7 +393,13 @@ sub build_mib_tree {
       my $mac_snmp_suboid = join '' , map { '.' . hex($_)  } @mac_bytes;
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{value} = $mac_snmp_str;
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{type} = 'Hex-STRING';
-
+      
+      for my $port (keys %{$fdb{$target_mac}} ) {
+        # looks like the loop is bs here ... only 1 port per target ... never mind ...
+        my $port_index = $dev_byname{$port};
+        $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.2$mac_snmp_suboid"}->{value} = $port_index;
+        $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.2$mac_snmp_suboid"}->{type} = 'INTEGER';
+      }
     }
     # print Dumper (\%fdb);
     # die "bleeding edge ========~~~~~-----------";
