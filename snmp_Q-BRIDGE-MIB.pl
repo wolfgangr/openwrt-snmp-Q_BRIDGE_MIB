@@ -355,8 +355,8 @@ sub build_mib_tree {
     for my $i (1 .. ($#$portlist +1)) {
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.1.$i"}->{value} = $i;
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.1.$i" }->{type} = 'INTEGER';
-
-      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.2.$i"}->{value} = $i;
+      my $idx = $ip_link_data{$$portlist[$i -1] }->{index};
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.2.$i"}->{value} = $idx;
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.2.$i" }->{type} = 'INTEGER';
 
     }
@@ -503,7 +503,7 @@ sub load_ip_link {
   my $link; # keep track of current blocks over multiple lines
   while ( my $l1 = shift @ip_raw) {
     my $l2 = shift @ip_raw;
-    print "$l1\n$l2\n" ;
+    # print "$l1\n$l2\n" ;
     # ^(\d+)\: (\S+)\: \<([\w\,]*)\>(.*)$
     # ^(\d+)\:\s(\S+)\:\s\<([\w\,]*)\>\s(.*)$
     my ($if_idx, $if_label, $bools, $pairs) = ($l1 =~ /^(\d+)\:\s(\S+)\:\s\<([\w\,]*)\>\s(.*)$/) ;
@@ -519,8 +519,8 @@ sub load_ip_link {
        (@pairs), (@bools)
         } ;
   }
-  print Dumper(\%ip_link_data);
-  exit;
+  # print Dumper(\%ip_link_data);
+  # exit;
 }
 
 
