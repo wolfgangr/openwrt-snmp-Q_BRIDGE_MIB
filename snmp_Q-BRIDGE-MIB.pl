@@ -395,18 +395,20 @@ sub build_mib_tree {
       my @mac_bytes = split ':', $target_mac;
       my $mac_snmp_str = join ' ' , @mac_bytes;
       my $mac_snmp_suboid = join '' , map { '.' . hex($_)  } @mac_bytes;
+      # dot1dTpFdbAddress                        1.3.6.1.2.1.17.4.3.1.1  
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{value} = $mac_snmp_str;
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{type} = 'Hex-STRING';
       
       for my $port (keys %{$fdb{$target_mac}} ) {
         # looks like the loop is bs here ... only 1 port per target ... never mind ...
         my $port_index = $dev_byname{$port};
+        # dot1dTpFdbPort                           1.3.6.1.2.1.17.4.3.1.2
         $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.2$mac_snmp_suboid"}->{value} = $port_index;
         $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.2$mac_snmp_suboid"}->{type} = 'INTEGER';
       }
     }
     print Dumper (\%fdb, \%fdb_q);
-    die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
+    # die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
 
 	# dot1dTpPortTable                         1.3.6.1.2.1.17.4.4
 	# dot1dTpPortEntry                         1.3.6.1.2.1.17.4.4.1 
@@ -416,9 +418,22 @@ sub build_mib_tree {
 	# iso.3.6.1.2.1.17.7.1.1.{1..3}.0 = INTEGER: 1
 		# already done
 
-# dot1qNumVlans                            1.3.6.1.2.1.17.7.1.1.4                             # n/a  # n/a
+	# dot1qNumVlans   
+	#   1.3.6.1.2.1.17.7.1.1.4  
+	# iso.3.6.1.2.1.17.7.1.1.4.0 = Gauge32: 20
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{value} = scalar keys %fdb_q;
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{type}  = 'Gauge32';
+	# dot1qFdbDynamicCount 
+	#   1.3.6.1.2.1.17.7.1.2.1.1.2
+	# iso.3.6.1.2.1.17.7.1.2.1.1.2.4066 = Counter32: 4
 
+	# dot1qTpFdbPort  
+	#   1.3.6.1.2.1.17.7.1.2.2.1.2 vlID ##:## :##:## :##:##
+	# iso.3.6.1.2.1.17.7.1.2.2.1.2.4066.40.128.35.154.89.64 = INTEGER: 29
 
+	# dot1qTpFdbStatus 
+	#   1.3.6.1.2.1.17.7.1.2.2.1.3 V # #  #   #  #  #
+	# iso.3.6.1.2.1.17.7.1.2.2.1.3.1.0.21.187.18.46.82 = INTEGER: 3
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
   @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
