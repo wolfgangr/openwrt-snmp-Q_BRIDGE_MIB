@@ -495,8 +495,13 @@ sub build_mib_tree {
     # print $portmask;
     for my $pi (0 .. $#ports) {
       $portmask >>= 1;
-      $egress |= $portmask;
       die " defined portmap too short" unless $portmask;
+      my $vl_if_search = sprintf "%s.%u@%s", $ports[$pi], $vlanID, $ports[$pi];
+      # print "$vl_if_search\n";
+      # if (my $link_data = $ip_link_data{$vl_if_search}) {
+      if ($ip_link_data{$vl_if_search}) {
+         $egress |= $portmask;
+      }
       
       # printf "  no:%d -> %s", $pi+1, $ports[$pi];
       # $portmask >>= 1;
