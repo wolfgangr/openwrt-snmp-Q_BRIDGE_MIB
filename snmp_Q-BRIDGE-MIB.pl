@@ -512,9 +512,11 @@ sub load_ip_link {
     # ^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$
     my ($base, $vlid, $trunk) = ( $if_label  =~ /^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$/ );
     my @pairs = split '\s', $pairs;
+    my @bools = map { ($_, 'true') } split ',', $bools;
     $ip_link_data{$if_label} = {  index => $if_idx, label => $if_label, 
        linktype => $linktype, MAC => $mac, brd => $brd,
-       (@pairs)
+       ifname => $base, vlanID => $vlid, trunk => $trunk,
+       (@pairs), (@bools)
         } ;
   }
   print Dumper(\%ip_link_data);
