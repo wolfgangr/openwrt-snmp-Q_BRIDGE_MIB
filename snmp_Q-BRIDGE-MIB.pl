@@ -540,6 +540,23 @@ sub build_mib_tree {
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.5.${vlanID}"}->{type} = 'INTEGER';
     
   }
+  # dot1qPortVlanTable                       1.3.6.1.2.1.17.7.1.4.5
+  # "default vlan" is a weird concept in linux iproute2 world, 
+  #    but we may have to keep observium happy
+  my @ports = @{$ifindex{ports_static_avail}};
+  for my $pi (0 .. $#ports) {
+    # my $portname =  $ports[$pi];
+    # dot1qPvid	1.3.6.1.2.1.17.7.1.4.5.1.1   # default port
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.1.$pi"}->{value} = 1;
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.1.$pi"}->{type} = 'INTEGER';
+    # dot1qPortAcceptableFrameTypes	1.3.6.1.2.1.17.7.1.4.5.1.2
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.2.$pi"}->{value} = 1;
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.2.$pi"}->{type} = 'INTEGER';
+    # dot1qPortIngressFiltering	1.3.6.1.2.1.17.7.1.4.5.1.3
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.3.$pi"}->{value} = 1;
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.3.$pi"}->{type} = 'INTEGER';
+  }
+
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
   # @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
