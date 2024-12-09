@@ -347,7 +347,7 @@ sub build_mib_tree {
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.4.4.0'}->{value} = 4096;
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.4.4.0'}->{type} = 'INTEGER';
 
-
+  
 
     # dot1dBaseNumPorts                        1.3.6.1.2.1.17.1.2   
     my $portlist = $ifindex{ports_static_avail};
@@ -542,7 +542,15 @@ sub build_mib_tree {
   }
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
-  @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
+  # @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
+  # https://rosettacode.org/wiki/Sort_a_list_of_object_identifiers#Perl
+  # my @sorted =
+  @mib_out_sort = 
+    map { $_->[0] }
+    sort { $a->[1] cmp $b->[1] }
+    map { [$_, join '', map { sprintf "%6d", $_ } split /\./, $_] }
+    keys %mib_out_cache;
+
   my $next = ''; # marks end of populated tree 
   for my $k ( reverse @mib_out_sort ) {
     my $m = $mib_out_cache{$k};
