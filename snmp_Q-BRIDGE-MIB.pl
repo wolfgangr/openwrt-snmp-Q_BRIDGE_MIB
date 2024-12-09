@@ -428,12 +428,13 @@ sub build_mib_tree {
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{value} = scalar keys %fdb_q_byvlid;
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{type}  = 'Gauge32';
 
-    while ( my ($key, $val) = each %fdb_q_byvlid) {
+    while ( my ($vlid, $maclist) = each %fdb_q_byvlid) {
         # dot1qFdbDynamicCount 
         #   1.3.6.1.2.1.17.7.1.2.1.1.2
         # iso.3.6.1.2.1.17.7.1.2.1.1.2.4066 = Counter32: 4
-      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$key"}->{value} = scalar keys %$val;
-      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$key"}->{type}  = 'Counter32';
+      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$vlid"}->{value} = scalar keys %$maclist;
+      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$vlid"}->{type}  = 'Counter32';
+      while ( my ($mac, $cnt) = each %$maclist) { ; }
 	# dot1qTpFdbPort  
 	#   1.3.6.1.2.1.17.7.1.2.2.1.2 vlID ##:## :##:## :##:##
 	# iso.3.6.1.2.1.17.7.1.2.2.1.2.4066.40.128.35.154.89.64 = INTEGER: 29
