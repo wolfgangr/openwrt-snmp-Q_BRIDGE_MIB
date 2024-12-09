@@ -343,6 +343,9 @@ sub build_mib_tree {
 		# dot1qMaxSupportedVlans
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{value} = 99;
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{type} = 'Gauge32';
+	# dot1qNextFreeLocalVlanIndex   1.3.6.1.2.1.17.7.1.4.4
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.4.4.0'}->{value} = 4096;
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.4.4.0'}->{type} = 'INTEGER';
 
 
 
