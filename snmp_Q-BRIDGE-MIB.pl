@@ -378,13 +378,17 @@ sub build_mib_tree {
     # we need a reverse index: mac -> seen port
 
     my %dev_byname  = map { $$portlist[$_ -1],  $_ }   (1 .. ($#$portlist +1));
-    my %fdb;
+    my %fdb;    # for dot1d 
+    my %fdb_q;  # for dot1q   
     for  my $fde (@proc_arp_data) {
       my $device = $fde->{Device};
       # ^([\w\-]+)(\.(\d+))?
       my ($port, $bs, $vlid) = ( $device =~ /^([\w\-]+)(\.(\d+))?$/ );
       my $mac = $fde->{'HW address'};
-      $fdb{$mac}->{$port}++;
+      $fdb{$mac}->{$port}++;      # for dot1d - by physical port
+      if ($vlid ne '') {
+        $fdb_q{$mac}->{$vlid}++;    # for dot1q - by vlan id
+      }
     }
 
     for my $target_mac (keys %fdb) {
@@ -401,8 +405,8 @@ sub build_mib_tree {
         $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.2$mac_snmp_suboid"}->{type} = 'INTEGER';
       }
     }
-    # print Dumper (\%fdb);
-    # die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
+    print Dumper (\%fdb, \%fdb_q);
+    die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
 
 	# dot1dTpPortTable                         1.3.6.1.2.1.17.4.4
 	# dot1dTpPortEntry                         1.3.6.1.2.1.17.4.4.1 
