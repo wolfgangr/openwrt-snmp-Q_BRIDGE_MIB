@@ -511,6 +511,11 @@ sub load_ip_link {
     my ($linktype, $mac, $brd) = ($l2 =~ /^\s+link\/(\w+)\s(\S+)\sbrd\s(\S+)/);
     # ^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$
     my ($base, $vlid, $trunk) = ( $if_label  =~ /^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$/ );
+    my @pairs = split '\s', $pairs;
+    $ip_link_data{$if_label} = {  index => $if_idx, label => $if_label, 
+       linktype => $linktype, MAC => $mac, brd => $brd,
+       (@pairs)
+        } ;
   }
   print Dumper(\%ip_link_data);
   exit;
