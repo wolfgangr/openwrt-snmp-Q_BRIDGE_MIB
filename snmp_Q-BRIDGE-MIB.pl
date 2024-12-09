@@ -360,6 +360,37 @@ sub build_mib_tree {
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.1.2.$i" }->{type} = 'INTEGER';
 
     }
+
+  # forward database (aka arp table)
+	# dot1dTp                                  1.3.6.1.2.1.17.4
+	# dot1dTpLearnedEntryDiscards              1.3.6.1.2.1.17.4.1 
+		# no data source at hand
+	# dot1dTpAgingTime                         1.3.6.1.2.1.17.4.2 
+		# no data source at hand
+        # dot1dTpFdbStatus                         1.3.6.1.2.1.17.4.3.1.3 
+                # no datasource at hand
+
+	# dot1dTpFdbTable                          1.3.6.1.2.1.17.4.3 
+	# dot1dTpFdbEntry                          1.3.6.1.2.1.17.4.3.1 
+	# dot1dTpFdbAddress                        1.3.6.1.2.1.17.4.3.1.1 
+	# dot1dTpFdbPort                           1.3.6.1.2.1.17.4.3.1.2 
+		# data source: $@proc_arp_data
+    # we need a reverse index: mac -> seen port
+    my %dev_byname  = map { $$portlist[$_ -1],  $_ }   (1 .. ($#$portlist +1));
+    # print Dumper (\%dev_byname);
+    # die "bleeding edge ========~~~~~-----------";
+    my %fdb;
+    for  my $fde (@proc_arp_data) {
+      my $device = $fde->{Device};
+      # ^([\w\-]+)(\.(\d+))?
+      my ($port, $bs, $vlid) = ( $device =~ /^([\w\-]+)(\.(\d+))?$/ );
+      my $mac = $fde->{'HW address'};
+      $fdb{$mac}->{$port}++;
+    }
+    print Dumper (\%fdb);
+    die "bleeding edge ========~~~~~-----------";
+
+
   # add static stuff
 
   # add dynamic stuff
