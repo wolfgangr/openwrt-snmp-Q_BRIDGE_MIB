@@ -547,7 +547,7 @@ sub build_if_index_static {
 
 
   $ifindex{vlans_static}      = \%vlans;
-  $ifindex{vlans_static_byID} = [ sort keys %vlans  ];
+  $ifindex{vlans_static_byID} = [ sort { $a <=> $b } keys  %vlans  ];
   $ifindex{vlans_static_names}= \%vlan_names;
   $ifindex{stat_other_devs}   = \%otherdevs ;
   $ifindex{stat_oconf}        = \%otherconf ;
@@ -604,7 +604,7 @@ sub load_ip_link {
     #  ^\s+link\/(\w+)\s(\S+)\sbrd\s(\S+)
     my ($linktype, $mac, $brd) = ($l2 =~ /^\s+link\/(\w+)\s(\S+)\sbrd\s(\S+)/);
     # ^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$
-    my ($base, $vlid, $trunk) = ( $if_label  =~ /^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$/ );
+    my ($base, $nope1, $vlid, $nope2, $trunk) = ( $if_label  =~ /^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$/ );
     my @pairs = split '\s', $pairs;
     my @bools = map { ($_, 'true') } split ',', $bools;
     $ip_link_data{$if_label} = {  index => $if_idx, label => $if_label, 
