@@ -493,16 +493,24 @@ sub build_mib_tree {
     my @ports = @{$ifindex{ports_static_avail}};
     my $portmap_bytes = (int((scalar @ports) /8 )) +1;
     my $portmask = 1 << ($portmap_bytes * 8) ;
-    my $egress   = 0;
+    my $egress   = 0; # current (from ip link
+    my $egressS  = 0; # static (from uci)
     my $untagged = 0;
 
     for my $pi (0 .. $#ports) {
+      my $portname =  $ports[$pi];
       $portmask >>= 1;
       die " defined portmap too short" unless $portmask;
-      my $vl_if_search = sprintf "%s.%u@%s", $ports[$pi], $vlanID, $ports[$pi];
+
+      my $vl_if_search = sprintf "%s.%u@%s", $portname, $vlanID, $portname;
       if ($ip_link_data{$vl_if_search}) {
          $egress |= $portmask;
       }
+
+      if ($ifindex{vlans_static}->{$vlanID}->{ifname} eq $portname) {
+         $egressS |= $portmask;
+      }
+
     }
 
     # dot1qVlanCurrentEgressPorts  1.3.6.1.2.1.17.7.1.4.2.1.4
@@ -514,6 +522,20 @@ sub build_mib_tree {
     #                1.3.6.1.2.1.17.7.1.4.2.1.5.1.*
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{type} = 'Hex-STRING';     
+    # dot1qVlanStaticEgressPorts 
+    #                1.3.6.1.2.1.17.7.1.4.3.1.2
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{value} = format_hex_groups($egressS, $portmap_bytes);
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{type} = 'Hex-STRING';
+    # dot1qVlanForbiddenEgressPorts	1.3.6.1.2.1.17.7.1.4.3.1.3
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{type} = 'Hex-STRING';
+    # dot1qVlanStaticUntaggedPorts	1.3.6.1.2.1.17.7.1.4.3.1.4
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{type} = 'Hex-STRING';
+    # dot1qVlanStaticRowStatus 1.3.6.1.2.1.17.7.1.4.3.1.5    
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.5.${vlanID}"}->{value} = 1;
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.5.${vlanID}"}->{type} = 'INTEGER';
+    
   }
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
