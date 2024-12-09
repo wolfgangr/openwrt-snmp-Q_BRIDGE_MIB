@@ -376,9 +376,8 @@ sub build_mib_tree {
 	# dot1dTpFdbPort                           1.3.6.1.2.1.17.4.3.1.2 
 		#  all boils down to data source: $@proc_arp_data
     # we need a reverse index: mac -> seen port
+
     my %dev_byname  = map { $$portlist[$_ -1],  $_ }   (1 .. ($#$portlist +1));
-    # print Dumper (\%dev_byname);
-    # die "bleeding edge ========~~~~~-----------";
     my %fdb;
     for  my $fde (@proc_arp_data) {
       my $device = $fde->{Device};
@@ -387,6 +386,7 @@ sub build_mib_tree {
       my $mac = $fde->{'HW address'};
       $fdb{$mac}->{$port}++;
     }
+
     for my $target_mac (keys %fdb) {
       my @mac_bytes = split ':', $target_mac;
       my $mac_snmp_str = join ' ' , @mac_bytes;
@@ -402,17 +402,21 @@ sub build_mib_tree {
       }
     }
     # print Dumper (\%fdb);
-    # die "bleeding edge ========~~~~~-----------";
+    # die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
+
+	# dot1dTpPortTable                         1.3.6.1.2.1.17.4.4
+	# dot1dTpPortEntry                         1.3.6.1.2.1.17.4.4.1 
+	# dot1dTpPort                              1.3.6.1.2.1.17.4.4.1.{1..5}.* 
+		# per port/mac statistics I haven't yet bothered to find
+
+	# iso.3.6.1.2.1.17.7.1.1.{1..3}.0 = INTEGER: 1
+		# already done
+
+# dot1qNumVlans                            1.3.6.1.2.1.17.7.1.1.4                             # n/a  # n/a
 
 
-  # add static stuff
 
-  # add dynamic stuff
-		# dot1qNumVlans
-    # $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.4.0'}->{value} = 4093;
-    # $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.4.0'}->{OType} = 'INTEGER';
-
-  # sort and chain
+  # sort and chain ============ mib output -----------------------------------------------------------------------
   @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
   my $next = ''; # marks end of populated tree 
   for my $k ( reverse @mib_out_sort ) {
@@ -424,9 +428,6 @@ sub build_mib_tree {
       $next = $m->{OID};
     }
   }
-
-  # print Dumper(\%mib_out_cache);
-  # die "DEBUG ====================in build_mib_tree =~~~~~~~~~~~~~~~~~------------------"; 
 }
 
 
