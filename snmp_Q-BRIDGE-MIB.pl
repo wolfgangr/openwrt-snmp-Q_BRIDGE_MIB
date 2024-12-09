@@ -135,7 +135,7 @@ while (<>){   # ===============  main loop ==========================
   if (m!^get(next)?\s*$!){
     my $cmd = $_;
     my $req = <>;
-    my $ret;
+    # my $ret;
     chomp($cmd);
     chomp($req);
 
@@ -501,8 +501,16 @@ sub load_ip_link {
   die "executing $ip_link_list delivered empty result\n" unless scalar @ip_raw;
 
   my $link; # keep track of current blocks over multiple lines
-  for my $l (@ip_raw) {
-    print "$l\n" ; 
+  while ( my $l1 = shift @ip_raw) {
+    my $l2 = shift @ip_raw;
+    print "$l1\n$l2\n" ;
+    # ^(\d+)\: (\S+)\: \<([\w\,]*)\>(.*)$
+    # ^(\d+)\:\s(\S+)\:\s\<([\w\,]*)\>\s(.*)$
+    my ($if_idx, $if_label, $bools, $pairs) = ($l1 =~ /^(\d+)\:\s(\S+)\:\s\<([\w\,]*)\>\s(.*)$/) ;
+    #  ^\s+link\/(\w+)\s(\S+)\sbrd\s(\S+)
+    my ($linktype, $mac, $brd) = ($l2 =~ /^\s+link\/(\w+)\s(\S+)\sbrd\s(\S+)/);
+    # ^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$
+    my ($base, $vlid, $trunk) = ( $if_label  =~ /^([\w\-]+)(\.(\d+))?(\@([\w\-]+))?$/ );
   }
   print Dumper(\%ip_link_data);
   exit;
