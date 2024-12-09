@@ -308,7 +308,7 @@ sub oid_line {
   my $oref = shift;
   return  '--# UNDEF # --' unless defined $oref ;
 
-  return sprintf ('%-40s %-35s %20s  %s',
+  return sprintf ('%-40s %-35s %20s:  %s',
     $oref->{def}->{OName} // ' -',   
     $oref->{OID} // $oref->{def}->{OID} // '?????',
     $oref->{type} // '# n/a',
@@ -387,8 +387,16 @@ sub build_mib_tree {
       my $mac = $fde->{'HW address'};
       $fdb{$mac}->{$port}++;
     }
-    print Dumper (\%fdb);
-    die "bleeding edge ========~~~~~-----------";
+    for my $target_mac (keys %fdb) {
+      my @mac_bytes = split ':', $target_mac;
+      my $mac_snmp_str = join ' ' , @mac_bytes;
+      my $mac_snmp_suboid = join '' , map { '.' . hex($_)  } @mac_bytes;
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{value} = $mac_snmp_str;
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{type} = 'Hex-STRING';
+
+    }
+    # print Dumper (\%fdb);
+    # die "bleeding edge ========~~~~~-----------";
 
 
   # add static stuff
