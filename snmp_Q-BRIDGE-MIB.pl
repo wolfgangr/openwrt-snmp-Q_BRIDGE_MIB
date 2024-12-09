@@ -483,28 +483,18 @@ sub build_mib_tree {
 
     
     my @ports = @{$ifindex{ports_static_avail}};
-
-    # my $portmap_bits = (int((scalar @ports)  / 8)) * 8 + 8; 
     my $portmap_bytes = (int((scalar @ports) /8 )) +1;
-    # my $portmap_bits = $portmap_bytes *8
-
     my $portmask = 1 << ($portmap_bytes * 8) ;
     my $egress   = 0;
     my $untagged = 0;
 
-    # print $portmask;
     for my $pi (0 .. $#ports) {
       $portmask >>= 1;
       die " defined portmap too short" unless $portmask;
       my $vl_if_search = sprintf "%s.%u@%s", $ports[$pi], $vlanID, $ports[$pi];
-      # print "$vl_if_search\n";
-      # if (my $link_data = $ip_link_data{$vl_if_search}) {
       if ($ip_link_data{$vl_if_search}) {
          $egress |= $portmask;
       }
-      
-      # printf "  no:%d -> %s", $pi+1, $ports[$pi];
-      # $portmask >>= 1;
     }
 
     # dot1qVlanCurrentEgressPorts  1.3.6.1.2.1.17.7.1.4.2.1.4
@@ -516,11 +506,7 @@ sub build_mib_tree {
     #                1.3.6.1.2.1.17.7.1.4.2.1.5.1.*
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{type} = 'Hex-STRING';     
-    # format_hex_groups(number, bytes, ['spacer'] );
-
-    # printf " vlan ID: %d, egress: %X \n" , $vlanID, $egress ;
   }
-  # die "cutting edge =================~~~~~~-----------------";
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
   @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
