@@ -502,7 +502,7 @@ sub load_ip_link {
 
   my $link; # keep track of current blocks over multiple lines
   for my $l (@ip_raw) {
-    print $l; 
+    print "$l\n" ; 
   }
   print Dumper(\%ip_link_data);
   exit;
