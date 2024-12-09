@@ -392,7 +392,7 @@ sub build_mib_tree {
       my ($port, $bs, $vlid) = ( $device =~ /^([\w\-]+)(\.(\d+))?$/ );
       my $mac = $fde->{'HW address'};
       $fdb{$mac}->{$port}++;      # for dot1d - by physical port
-      if ($vlid ne '') {
+      if (defined $vlid and $vlid ne '') {
         # $fdb_q_byMAC{$mac}->{$vlid}++;    # for dot1q - by vlan id
         $fdb_q_byvlid{$vlid}->{$mac}++;
         $dot1qTpFdbPort{$vlid}->{$mac}->{$port}++;
