@@ -378,8 +378,10 @@ sub build_mib_tree {
     # we need a reverse index: mac -> seen port
 
     my %dev_byname  = map { $$portlist[$_ -1],  $_ }   (1 .. ($#$portlist +1));
-    my %fdb;    # for dot1d 
-    my %fdb_q;  # for dot1q   
+    my %fdb;          # for dot1d 
+    my %fdb_q_byMAC;  # for dot1q   
+    my %fdb_q_byvlid; 
+
     for  my $fde (@proc_arp_data) {
       my $device = $fde->{Device};
       # ^([\w\-]+)(\.(\d+))?
@@ -387,7 +389,8 @@ sub build_mib_tree {
       my $mac = $fde->{'HW address'};
       $fdb{$mac}->{$port}++;      # for dot1d - by physical port
       if ($vlid ne '') {
-        $fdb_q{$mac}->{$vlid}++;    # for dot1q - by vlan id
+        $fdb_q_byMAC{$mac}->{$vlid}++;    # for dot1q - by vlan id
+        $fdb_q_byvlid{$vlid}->{$mac}++;
       }
     }
 
@@ -407,7 +410,8 @@ sub build_mib_tree {
         $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.2$mac_snmp_suboid"}->{type} = 'INTEGER';
       }
     }
-    print Dumper (\%fdb, \%fdb_q);
+    print Dumper (\%fdb);
+    print Dumper (\%fdb_q_byMAC, \%fdb_q_byvlid);
     # die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
 
 	# dot1dTpPortTable                         1.3.6.1.2.1.17.4.4
@@ -421,12 +425,15 @@ sub build_mib_tree {
 	# dot1qNumVlans   
 	#   1.3.6.1.2.1.17.7.1.1.4  
 	# iso.3.6.1.2.1.17.7.1.1.4.0 = Gauge32: 20
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{value} = scalar keys %fdb_q;
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{value} = scalar keys %fdb_q_byvlid;
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{type}  = 'Gauge32';
-	# dot1qFdbDynamicCount 
-	#   1.3.6.1.2.1.17.7.1.2.1.1.2
-	# iso.3.6.1.2.1.17.7.1.2.1.1.2.4066 = Counter32: 4
 
+    while ( my ($key, $val) = each %fdb_q_byvlid) {
+        # dot1qFdbDynamicCount 
+        #   1.3.6.1.2.1.17.7.1.2.1.1.2
+        # iso.3.6.1.2.1.17.7.1.2.1.1.2.4066 = Counter32: 4
+      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$key"}->{value} = scalar keys %$val;
+      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$key"}->{type}  = 'Counter32';
 	# dot1qTpFdbPort  
 	#   1.3.6.1.2.1.17.7.1.2.2.1.2 vlID ##:## :##:## :##:##
 	# iso.3.6.1.2.1.17.7.1.2.2.1.2.4066.40.128.35.154.89.64 = INTEGER: 29
@@ -434,6 +441,7 @@ sub build_mib_tree {
 	# dot1qTpFdbStatus 
 	#   1.3.6.1.2.1.17.7.1.2.2.1.3 V # #  #   #  #  #
 	# iso.3.6.1.2.1.17.7.1.2.2.1.3.1.0.21.187.18.46.82 = INTEGER: 3
+    }
 
   # sort and chain ============ mib output -----------------------------------------------------------------------
   @mib_out_sort = sort keys %mib_out_cache; # keep sort cache as well
