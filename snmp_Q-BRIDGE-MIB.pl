@@ -473,6 +473,9 @@ sub build_mib_tree {
     # - dot1qVlanCreationTime  1.3.6.1.2.1.17.7.1.4.2.1.7
     # - untagged ports (always shown as 000)
  
+  my %vlan_names = reverse %{$ifindex{vlans_static_names}};
+  # print Dumper(\%vlan_names);
+  # die "echt jetzt?";
   for my $vlanID (@{$ifindex{vlans_static_byID}}) {
     # dot1qVlanIndex 1.3.6.1.2.1.17.7.1.4.2.1.2
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.2.1.${vlanID}"}->{value} = ${vlanID};
@@ -481,7 +484,12 @@ sub build_mib_tree {
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.6.1.${vlanID}"}->{value} = 2;
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.6.1.${vlanID}"}->{type} = 'INTEGER';
 
-    
+    # dot1qVlanStaticTable      1.3.6.1.2.1.17.7.1.4.3
+    #              iso.3.6.1.2.1.17.7.1.4.3.1.1.1 = STRING: "Default" 
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.1.${vlanID}"}->{value} = $vlan_names{$vlanID};
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.1.${vlanID}"}->{type} = 'STRING';
+
+
     my @ports = @{$ifindex{ports_static_avail}};
     my $portmap_bytes = (int((scalar @ports) /8 )) +1;
     my $portmask = 1 << ($portmap_bytes * 8) ;
