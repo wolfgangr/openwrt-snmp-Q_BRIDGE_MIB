@@ -382,6 +382,7 @@ sub build_mib_tree {
     # my %fdb_q_byMAC;  # for dot1q   
     my %fdb_q_byvlid; 
     my %dot1qTpFdbPort;
+    my %dot1qTpFdbStatus; 
 
     for  my $fde (@proc_arp_data) {
       my $device = $fde->{Device};
@@ -393,6 +394,7 @@ sub build_mib_tree {
         # $fdb_q_byMAC{$mac}->{$vlid}++;    # for dot1q - by vlan id
         $fdb_q_byvlid{$vlid}->{$mac}++;
         $dot1qTpFdbPort{$vlid}->{$mac}->{$port}++;
+        $dot1qTpFdbStatus{$vlid}->{$mac} = arp_status_from_flags($fde->{Flags});
       }
     }
 
@@ -413,10 +415,8 @@ sub build_mib_tree {
       }
     }
     # print Dumper (\%fdb);
-    # print Dumper (\%fdb_q_byMAC, \%fdb_q_byvlid);
     # print Dumper (\%fdb_q_byvlid);
     # print Dumper (\%dot1qTpFdbPort);
-    # die "bleeding edge ===========================~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-----------------------";
 
 	# dot1dTpPortTable                         1.3.6.1.2.1.17.4.4
 	# dot1dTpPortEntry                         1.3.6.1.2.1.17.4.4.1 
@@ -451,12 +451,16 @@ sub build_mib_tree {
         my $bondname = shift @l;
         my $port_index = $dev_byname{$bondname};
         printf "shift %s\n", $bondname;
-        $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.2.${vlid}${m_oid}"}->{value} = $port_index; # shift @l ;
+        $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.2.${vlid}${m_oid}"}->{value} = $port_index; 
 		# shift (keys %{$dot1qTpFdbPort{$vlid}->{$mac}}) ;
         $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.2.${vlid}${m_oid}"}->{type} = 'INTEGER'; 
 	# dot1qTpFdbStatus 
 	#   1.3.6.1.2.1.17.7.1.2.2.1.3 V # #  #   #  #  #
 	# iso.3.6.1.2.1.17.7.1.2.2.1.3.1.0.21.187.18.46.82 = INTEGER: 3
+	# sub arp_status_from_flags($flags)
+        $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.3.${vlid}${m_oid}"}->{value} = $dot1qTpFdbStatus{$vlid}->{$mac};
+        $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.2.1.3.${vlid}${m_oid}"}->{type} = 'INTEGER';
+
       }
     }
 
@@ -779,6 +783,17 @@ sub load_proc_arp {
   }
 }
 
+# map arp status for e.g. dot1qTpFdbStatus 1.3.6.1.2.1.17.7.1.2.2.1.3
+# caveat - largely untested
+# just by guess, slightly educated from linux /usr/include/linux/if_arp.h
+# arp_status_from_flags($flags)  i.e. 0x2 or 0x02 
+sub arp_status_from_flags {
+  my $f = hex (shift);
+  return 5 if $f & 0x4; # managed
+  return 3 if $f & 0x2; # learned
+  return 2 unless $f ;   # invalid
+  return 1;              # unknown
+}
 
 #
 # ====================================build mib tree ==================0
