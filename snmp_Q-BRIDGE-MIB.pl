@@ -61,12 +61,13 @@ my $MAC = '90 1B 0E 40 B5 23';  # 90:1B:0E:40:B5:23
 
 # config of the real gadget data source
 my $uci_show_net = '/sbin/uci show network';
+my $etc_config_network = '/etc/config/network';  # to check for modification time
 my $ip_link_list = '/sbin/ip link list';
 my $proc_dir = '/proc';
 my $etc_dir  = '/etc';
 my $usr_snmp_dir = '/usr/local/share/snmp';
 my @mib_tabs = qw ( tab_BRIDGE-MIB.raw  tab_Q-BRIDGE-MIB.raw);
-
+my $update_age = 3*60 ; # observium reads every 5 minutes, so this should sync
 
 # pseudo data source for development environment
 unless ($on_target) {
@@ -76,7 +77,8 @@ unless ($on_target) {
   $proc_dir = "$emulation_root/proc";
   $etc_dir  = "$emulation_root/etc";
   $usr_snmp_dir  = "$emulation_root/usr/local/share/snmp";
-  
+  $etc_config_network = "$emulation_root/uci/show/network"; # don't read syntax, just check mod time
+  $update_age = 30; # for faster testing only
 }
 
 debug(5, sprintf("uci: |%s| -  proc: |%s| -  etc: |%s| \n",
@@ -113,17 +115,21 @@ my $time_now = time;
 my $time_last; # = $time_now;
 my $time_updated = $time_now ;
 
+my $config_mod_time = 0;
+
+
 load_data(); # unconditionally at startup
 $time_now = time;
 debug(4, sprintf "     \$time_updated: %i; \$time_now: %i; initial data loaded in %i seconds  \n",
         $time_updated,  $time_now,  $time_now - $time_updated  );
 $time_updated = $time_now ;
+$config_mod_time = (stat($etc_config_network))[9] ;
 
 while (<>){   # ===============  main loop ==========================
   $time_last = $time_now;
   $time_now = time;
-  debug(6, "# check // load data \n") ;
-  # check_data(); # reload only if required
+  # debug(6, "# check // load data \n") ;
+  check_data(); # reload only if required
 
   debug(6, sprintf "     \$time_now: %i; \$time_last: %i; passed: %i seconds  \n",
 	$time_now,  $time_last,  $time_now - $time_last  );
@@ -257,7 +263,7 @@ die "   ===== DEBUG exit or error? ===== ";
 # =============== subs ========================================================
 
 sub load_data {
-  debug(3, "perform initial load_data() ... \n");
+  debug(3, "perform load_data() ... \n");
   load_uci_net();
   load_ip_link();
   load_proc_vlan();
@@ -266,15 +272,30 @@ sub load_data {
   load_mibtabs();
   build_if_index_static();
   build_mib_tree();
-  debug(4, "... completed initial load_data() \n");
+  debug(4, "... completed load_data() \n");
 }
 
 
 
 sub check_data {
-  debug(0, "### TBD check_data() \n");
-  load_uci_net() if 0;
-  load_proc_vlan() if 0;
+  debug(5, " - check_data() - \n");
+  # load_uci_net() if 0;
+  # load_proc_vlan() if 0;
+  my $reload = 0;
+
+  my $now = time;
+  if ( $now  - $time_updated >= $update_age ) {
+    debug(4, " $now  - $time_updated >= $update_age => updating  \n");
+    $reload = 1;
+  } elsif ( (stat($etc_config_network))[9]  != $config_mod_time)    {
+    debug(4, " config file modified => updating  \n");
+    $reload = 1;
+  }
+  return unless $reload;
+   
+  load_data();
+  $time_updated = time;
+  $config_mod_time = (stat($etc_config_network))[9] ;
 }
 
 # ====== helpers to select data =======
@@ -322,7 +343,7 @@ sub oid_line {
 
 # %mib_out_cache;
 sub build_mib_tree {
-  debug(5, "     ### TBD... indexing interfaces ... \n");
+  debug(5, "     ... building mib tree ... \n");
 
   # instantiate from mibtab
   for my $mtrow (@mib_tab) {
