@@ -39,15 +39,19 @@
 #	not compatible to /sys layout of DuT
 #	depends on some perl cpan modules not readily available in openwrt
 
-my $debug=5; 		# debug level
-my $on_target=0;	# 0 for debian test environment, 1 for openWrt target widget
+my $debug=0; 		# debug level 0...5
+my $on_target=1;	# 0 for debian test environment, 1 for openWrt target widget
 
 # unless ($on_target) {
-  use warnings;
-  use strict;
-unless ($on_target) {
-  use Data::Dumper;   
-}
+#   use warnings;
+#  use strict;
+# unless ($on_target) {
+#  use Data::Dumper;   
+#}
+
+# Forces a buffer flush after every print
+$|=1;
+
 
 my $foo = 'bar';
 
@@ -55,7 +59,8 @@ my $foo = 'bar';
 # my @sort_interfaces = qw(lo eth\d eth_m eth_q eth_ eth phy ap lan br-lan bond);
 # no clue how to autodetect "configured" interfaces
 my @hw_ports = qw(lo eth_mb eth_q0 eth_q1 eth_q2 eth_q3); #  bond-bond0 );
-my $MAC = '90 1B 0E 40 B5 23';  # 90:1B:0E:40:B5:23
+# my $MAC = '90 1B 0E 40 B5 23';  # 90:1B:0E:40:B5:23
+my $MAC = '901B0E40B523';  # 90:1B:0E:40:B5:23
 # my $portmap = 0xffff; # sufficient bits or all ports to fit 
 # my $portmap_bits = 16 ; # number of bits for binary mapping, 
 
@@ -63,7 +68,7 @@ my $MAC = '90 1B 0E 40 B5 23';  # 90:1B:0E:40:B5:23
 my $uci_show_net = '/sbin/uci show network';
 my $etc_config_network = '/etc/config/network';  # to check for modification time
 my $ip_link_list = '/sbin/ip link list';
-my $proc_dir = '/proc';
+my $proc_dir = '/proc/net';
 my $etc_dir  = '/etc';
 my $usr_snmp_dir = '/usr/local/share/snmp';
 my @mib_tabs = qw ( tab_BRIDGE-MIB.raw  tab_Q-BRIDGE-MIB.raw);
@@ -152,8 +157,8 @@ while (<>){   # ===============  main loop ==========================
     
     if ($ret && $ret->{OID}  && $ret->{type} && $ret->{value}) {
       #  OID for the result varbind, the TYPE and the VALUE itself 
-      print $ret->{OID} . "\n";
-      print $ret->{type} . "\n";
+      printf '.' . $ret->{OID} . "\n";
+      print lc($ret->{type}) . "\n";
       print $ret->{value} . "\n";
     } else {
       print "NONE\n";
@@ -353,7 +358,7 @@ sub build_mib_tree {
 
   # add constant stuff
     $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{value} = $MAC;
-    $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{type} = 'Hex-STRING'; 
+    $mib_out_cache{ '1.3.6.1.2.1.17.1.1.0'}->{type} = 'STRING'; 
 		#  dot1qVlanVersionNumber
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.1.0'}->{value} = 1; 
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.1.0'}->{type} = 'INTEGER'; 
@@ -363,7 +368,7 @@ sub build_mib_tree {
 
 		# dot1qMaxSupportedVlans
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{value} = 99;
-    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{type} = 'Gauge32';
+    $mib_out_cache{ '1.3.6.1.2.1.17.7.1.1.3.0'}->{type} = 'Gauge';
 	# dot1qNextFreeLocalVlanIndex   1.3.6.1.2.1.17.7.1.4.4
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.4.4.0'}->{value} = 4096;
     $mib_out_cache{ '1.3.6.1.2.1.17.7.1.4.4.0'}->{type} = 'INTEGER';
@@ -426,11 +431,12 @@ sub build_mib_tree {
 
     for my $target_mac (keys %fdb) {
       my @mac_bytes = split ':', $target_mac;
-      my $mac_snmp_str = join ' ' , @mac_bytes;
+      # my $mac_snmp_str = join ' ' , @mac_bytes;
+      my $mac_snmp_str = join '' , @mac_bytes;
       my $mac_snmp_suboid = join '' , map { '.' . hex($_)  } @mac_bytes;
       # dot1dTpFdbAddress                        1.3.6.1.2.1.17.4.3.1.1  
       $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{value} = $mac_snmp_str;
-      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{type} = 'Hex-STRING';
+      $mib_out_cache{ "1.3.6.1.2.1.17.1.4.3.1.1$mac_snmp_suboid"}->{type} = 'STRING';
       
       for my $port (keys %{$fdb{$target_mac}} ) {
         # looks like the loop is bs here ... only 1 port per target ... never mind ...
@@ -456,14 +462,14 @@ sub build_mib_tree {
 	#   1.3.6.1.2.1.17.7.1.1.4  
 	# iso.3.6.1.2.1.17.7.1.1.4.0 = Gauge32: 20
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{value} = scalar keys %fdb_q_byvlid;
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{type}  = 'Gauge32';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.1.4.0"}->{type}  = 'Gauge';
 
     while ( my ($vlid, $maclist) = each %fdb_q_byvlid) {
         # dot1qFdbDynamicCount 
         #   1.3.6.1.2.1.17.7.1.2.1.1.2
         # iso.3.6.1.2.1.17.7.1.2.1.1.2.4066 = Counter32: 4
       $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$vlid"}->{value} = scalar keys %$maclist;
-      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$vlid"}->{type}  = 'Counter32';
+      $mib_out_cache{ "1.3.6.1.2.1.17.7.1.2.1.1.2.$vlid"}->{type}  = 'Counter';
       while ( my ($mac, $cnt) = each %$maclist) { 
         my @mac_bytes = split ':', $mac;
         # my $mac_snmp_str = join ' ' , @mac_bytes;
@@ -540,22 +546,22 @@ sub build_mib_tree {
     # dot1qVlanCurrentEgressPorts  1.3.6.1.2.1.17.7.1.4.2.1.4
     #              iso.3.6.1.2.1.17.7.1.4.2.1.4.1.1 = Hex-STRING: FF FF FC 60 00 
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{value} = format_hex_groups($egress, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{type} = 'Hex-STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{type} = 'STRING';
 
     # dot1qVlanCurrentUntaggedPorts	1.3.6.1.2.1.17.7.1.4.2.1.5
     #                1.3.6.1.2.1.17.7.1.4.2.1.5.1.*
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{type} = 'Hex-STRING';     
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{type} = 'STRING';     
     # dot1qVlanStaticEgressPorts 
     #                1.3.6.1.2.1.17.7.1.4.3.1.2
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{value} = format_hex_groups($egressS, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{type} = 'Hex-STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{type} = 'STRING';
     # dot1qVlanForbiddenEgressPorts	1.3.6.1.2.1.17.7.1.4.3.1.3
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{type} = 'Hex-STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{type} = 'STRING';
     # dot1qVlanStaticUntaggedPorts	1.3.6.1.2.1.17.7.1.4.3.1.4
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{type} = 'Hex-STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{type} = 'STRING';
     # dot1qVlanStaticRowStatus 1.3.6.1.2.1.17.7.1.4.3.1.5    
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.5.${vlanID}"}->{value} = 1;
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.5.${vlanID}"}->{type} = 'INTEGER';
@@ -944,7 +950,7 @@ sub format_hex_groups {
   my ($num, $bytes, $spc) = @_;
   $num //= 0;
   $bytes //= 1;
-  $spc //= ' ';
+  $spc //= '';
   my @chunks;
   while ($bytes--) {
     unshift @chunks, sprintf("%02X", $num & 0xff);
