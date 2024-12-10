@@ -546,22 +546,22 @@ sub build_mib_tree {
     # dot1qVlanCurrentEgressPorts  1.3.6.1.2.1.17.7.1.4.2.1.4
     #              iso.3.6.1.2.1.17.7.1.4.2.1.4.1.1 = Hex-STRING: FF FF FC 60 00 
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{value} = format_hex_groups($egress, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{type} = 'STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.4.1.${vlanID}"}->{type} = 'octet';
 
     # dot1qVlanCurrentUntaggedPorts	1.3.6.1.2.1.17.7.1.4.2.1.5
     #                1.3.6.1.2.1.17.7.1.4.2.1.5.1.*
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{type} = 'STRING';     
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.2.1.5.1.${vlanID}"}->{type} = 'octet';
     # dot1qVlanStaticEgressPorts 
     #                1.3.6.1.2.1.17.7.1.4.3.1.2
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{value} = format_hex_groups($egressS, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{type} = 'STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.2.${vlanID}"}->{type} = 'octet';
     # dot1qVlanForbiddenEgressPorts	1.3.6.1.2.1.17.7.1.4.3.1.3
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{type} = 'STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.3.${vlanID}"}->{type} = 'octet';
     # dot1qVlanStaticUntaggedPorts	1.3.6.1.2.1.17.7.1.4.3.1.4
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{value} = format_hex_groups(0, $portmap_bytes);
-    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{type} = 'STRING';
+    $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.4.${vlanID}"}->{type} = 'octet';
     # dot1qVlanStaticRowStatus 1.3.6.1.2.1.17.7.1.4.3.1.5    
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.5.${vlanID}"}->{value} = 1;
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.3.1.5.${vlanID}"}->{type} = 'INTEGER';
@@ -571,8 +571,9 @@ sub build_mib_tree {
   # "default vlan" is a weird concept in linux iproute2 world, 
   #    but we may have to keep observium happy
   my @ports = @{$ifindex{ports_static_avail}};
-  for my $pi (0 .. $#ports) {
+  for my $pi (1 .. $#ports+1) {
     # my $portname =  $ports[$pi];
+    # my $pip1 = $pi +1;
     # dot1qPvid	1.3.6.1.2.1.17.7.1.4.5.1.1   # default port
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.1.$pi"}->{value} = 1;
     $mib_out_cache{ "1.3.6.1.2.1.17.7.1.4.5.1.1.$pi"}->{type} = 'INTEGER';
@@ -950,7 +951,7 @@ sub format_hex_groups {
   my ($num, $bytes, $spc) = @_;
   $num //= 0;
   $bytes //= 1;
-  $spc //= '';
+  $spc //= ' ';
   my @chunks;
   while ($bytes--) {
     unshift @chunks, sprintf("%02X", $num & 0xff);
