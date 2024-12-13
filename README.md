@@ -45,16 +45,19 @@ from openWRT target to development workstation in `etc/` `proc/` `uci/` and `ip/
  
 configuration stanza in `/etc/config/snmpd`:
 
-```config pass
+```
+config pass
         option miboid '.1.3.6.1.2.1.17'
         option prog '/usr/local/bin/snmp_Q-BRIDGE-MIB.pl'
         option persist 1
 ```
 
 This should deliver the whole dot1dBridge below 1.3.6.1.2.1.17  
-```snmpwalk -v2c -c mysecret myrouter 1.3.6.1.2.1.17```
+```
+snmpwalk -v2c -c mysecret myrouter 1.3.6.1.2.1.17```
 
 only qBridgeMIB at 1.3.6.1.2.1.17.7   
-```snmpwalk -v2c -c mysecret myrouter 1.3.6.1.2.1.17.7```  
+```
+snmpwalk -v2c -c mysecret myrouter 1.3.6.1.2.1.17.7```  
 
 see `usr/local/share/snmp/tab_*BRIDGE-MIB.raw` or ask the internet for details
