@@ -63,3 +63,17 @@ snmpwalk -v2c -c mysecret myrouter 1.3.6.1.2.1.17.7
 ```  
 
 see `usr/local/share/snmp/tab_*BRIDGE-MIB.raw` or ask the internet for details
+
+## UNLICENSE
+This work is covered by UNLICENSE.
+
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+For details, see https://unlicense.org/
+
+

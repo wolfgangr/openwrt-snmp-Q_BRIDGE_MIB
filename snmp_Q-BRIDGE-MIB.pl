@@ -7,6 +7,8 @@
 #
 # work in progress, don't use, expect the worst
 # (C) Wolfgang Rosner Dez 2024 - wolfgangr@github.com
+# subject to UNLICENSE - see https://unlicense.org/
+# 
 #
 # test environment:
 # - OpenWrt 23.05.5 on x86_64
