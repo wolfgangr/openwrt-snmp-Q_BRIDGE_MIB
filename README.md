@@ -19,9 +19,22 @@ early development state - consider as untestet and dangerous
 - modfied until it delivers snmpd data to observium
 - watch for and fix some really obvious nonsense
 
-## draft of development cycle 
+## draft of intended deployment cycle 
+- make sure that 802.1Q, snmpd and perl fits to target device
 - copy `/dev/config/network`, `/proc/net`
 and output form `uci show network` and `ip link`  
-from openWRT target to development workstation
+from openWRT target to development workstation in `etc/` `proc/` `uci/` and `ip/` directories
+- on the development machine, set `$on_target=0;` in the source and uncomment use warnings|strict|Data::Dumper
+- check the `snmpd pass_persist` interface (`PING, get, getnext`) on STDIN / STDOUT
+- there is a superset of commands for debug purposes as well
+  - `dump <var>` to dump different data structures captured from system state
+  - `raw/rawnext <OID>` - similiar to `get/getnext`, but dump more internal data
+  - `list|walk [@|start-oid [end-oid]]` perform OID lookup similiar to snmpget / snmpwalk,
+    (but without client-server communication)
+    - `list` shows only definitions from `*.raw` MIB destillates, finds next lexical entry even if no precise match
+    - `walk` includes system state data if available, requires matching entry for start
+- when satisfied,
+  - copy (e.g. by `scp`) the script to `/usr/local/bin/snmp_Q-BRIDGE-MIB.pl` on openWRT target
+  - copy usr/local/share/snmp/*.raw to target
 -  to be continued ----
 
