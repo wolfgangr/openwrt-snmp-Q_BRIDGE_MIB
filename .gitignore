@@ -1,6 +1,7 @@
 *.swp
-test/
-etc/
-proc/
-usr/
-uci/
+test/*
+etc/*
+proc/*
+# usr/*
+uci/*
+ip/*
