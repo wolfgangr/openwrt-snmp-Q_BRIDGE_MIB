@@ -24,7 +24,7 @@ early development state - consider as untestet and dangerous
 - copy `/dev/config/network`, `/proc/net`
 and output form `uci show network` and `ip link`  
 from openWRT target to development workstation in `etc/` `proc/` `uci/` and `ip/` directories
-- on the development machine, set `$on_target=0;` in the source and uncomment use warnings|strict|Data::Dumper
+- on the development machine, set `$on_target=0;` in the source and uncomment `use warnings|strict|Data::Dumper`
 - check the `snmpd pass_persist` interface (`PING, get, getnext`) on STDIN / STDOUT
 - there is a superset of commands for debug purposes as well
   - `dump <var>` to dump different data structures captured from system state
@@ -36,5 +36,24 @@ from openWRT target to development workstation in `etc/` `proc/` `uci/` and `ip/
 - when satisfied,
   - copy (e.g. by `scp`) the script to `/usr/local/bin/snmp_Q-BRIDGE-MIB.pl` on openWRT target
   - copy usr/local/share/snmp/*.raw to target
--  to be continued ----
+  - on the target, set `$on_target=1;` in the source and comment out `use warnings|strict|Data::Dumper` lines
+  - check whether debug and `pass_persist` interface are working as intended
+  (`list` and `walk` are available on target as well, but expect to miss stuff relying on `Data::Dumper`)
+  - enable skript in `/etc/config/snmpd` and call `/etc/init.d/snmpd restart` (see stanza below)
+  - test the relevant OIDs with some snmp client
+ 
+configuration stanza in `/etc/config/snmpd`:
 
+```config pass
+        option miboid '.1.3.6.1.2.1.17'
+        option prog '/usr/local/bin/snmp_Q-BRIDGE-MIB.pl'
+        option persist 1
+```
+
+This should deliver the whole dot1dBridge below 1.3.6.1.2.1.17  
+```snmpwalk -v2c -c wrdlbrmft spider2 1.3.6.1.2.1.17```
+
+only qBridgeMIB at 1.3.6.1.2.1.17.7   
+```snmpwalk -v2c -c wrdlbrmft spider2 1.3.6.1.2.1.17.7```  
+
+see `usr/local/share/snmp/tab_*BRIDGE-MIB.raw` or ask the internet for details
