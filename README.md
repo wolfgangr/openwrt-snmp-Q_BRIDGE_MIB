@@ -1,25 +1,26 @@
-(see the source code for details and pointers)
+
+see the source code for configuration, details and pointers
 
 ## Task to be solved:  
-While openWrt is able to implement **tagged vlans** as of **802.1Q**, it's snmpd obviously ist not.  
-This script ist developped and tested for a **openWRT router** only on **x86** platform.  
+While openWrt is able to implement **tagged vlans** as of **802.1Q**, it's snmpd obviously ist not equipped to supply the information as defined by Q-BRIDGE-MIB and the higher level BRIDGE-MIB.   
+The perl script at hand ist developed and tested for a **openWRT router only** on **x86** platform.  
 Implementation for wlan AP is planned.  
 
 The final goal is to gain some high level insight into the whole network infrastructure containing e. g.
 - openWRT router
 - openWRT access points
-- enterprise grade manageable switches (HP ProCurve 1810 and HPE OfficeConnect 1820 in my case)
+- enterprise grade manageable switches (venerable HP ProCurve 1810 and HPE OfficeConnect 1820 in my case)
 
-using some snmp-aware surveillance system ([observium](https://www.observium.org/) in my case)
+using some snmp-aware network surveillance system ([observium](https://www.observium.org/) in my case)
 
-## state of the code
-early development state - consider as untestet and dangerous  
+## State of the code
+Early development state - consider as untestet and dangerous  
 - drafted on development environment
 - deployed to openWRT router
-- modfied until it delivers snmpd data to observium
+- modified until it delivers snmpd data to observium
 - watch for and fix some really obvious nonsense
 
-## draft of intended deployment cycle 
+## Draft of intended deployment cycle 
 - make sure that 802.1Q, snmpd and perl fits to target device
 - copy `/dev/config/network`, `/proc/net`
 and output form `uci show network` and `ip link`  
@@ -51,9 +52,9 @@ configuration stanza in `/etc/config/snmpd`:
 ```
 
 This should deliver the whole dot1dBridge below 1.3.6.1.2.1.17  
-```snmpwalk -v2c -c wrdlbrmft spider2 1.3.6.1.2.1.17```
+```snmpwalk -v2c -c mysecret myrouter 1.3.6.1.2.1.17```
 
 only qBridgeMIB at 1.3.6.1.2.1.17.7   
-```snmpwalk -v2c -c wrdlbrmft spider2 1.3.6.1.2.1.17.7```  
+```snmpwalk -v2c -c mysecret myrouter 1.3.6.1.2.1.17.7```  
 
 see `usr/local/share/snmp/tab_*BRIDGE-MIB.raw` or ask the internet for details
